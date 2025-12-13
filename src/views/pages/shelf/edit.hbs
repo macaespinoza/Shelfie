@@ -1,0 +1,107 @@
+<!-- Pagina de editar repisa -->
+<div class="container py-4">
+  <div class="row justify-content-center">
+    <div class="col-lg-6">
+      <div class="card bg-dark border-secondary">
+        <div class="card-header d-flex justify-content-between align-items-center">
+          <h4 class="mb-0">
+            <i class="bi bi-pencil-square me-2"></i>Editar Repisa
+          </h4>
+          <a href="/shelf/{{shelf.id}}" class="btn btn-sm btn-outline-secondary">
+            <i class="bi bi-arrow-left me-1"></i>Volver
+          </a>
+        </div>
+        <div class="card-body">
+          <form action="/shelf/{{shelf.id}}/edit" method="POST">
+            <!-- Nombre -->
+            <div class="mb-3">
+              <label for="name" class="form-label">Nombre de la repisa</label>
+              <input
+                type="text"
+                class="form-control bg-dark border-secondary"
+                id="name"
+                name="name"
+                value="{{shelf.name}}"
+                maxlength="100"
+                required
+              >
+            </div>
+
+            <!-- Descripcion -->
+            <div class="mb-3">
+              <label for="description" class="form-label">Descripcion (opcional)</label>
+              <textarea
+                class="form-control bg-dark border-secondary"
+                id="description"
+                name="description"
+                rows="3"
+                maxlength="500"
+              >{{shelf.description}}</textarea>
+            </div>
+
+            <!-- Privacidad -->
+            <div class="mb-4">
+              <div class="form-check form-switch">
+                <input
+                  class="form-check-input"
+                  type="checkbox"
+                  id="isPublic"
+                  name="isPublic"
+                  {{#if shelf.isPublic}}checked{{/if}}
+                >
+                <label class="form-check-label" for="isPublic">
+                  <i class="bi bi-globe me-1"></i>Repisa publica
+                </label>
+              </div>
+            </div>
+
+            <div class="d-flex justify-content-between">
+              <button type="submit" class="btn btn-primary">
+                <i class="bi bi-check-lg me-2"></i>Guardar Cambios
+              </button>
+
+              <!-- Boton eliminar -->
+              <button
+                type="button"
+                class="btn btn-outline-danger"
+                data-bs-toggle="modal"
+                data-bs-target="#deleteModal"
+              >
+                <i class="bi bi-trash me-2"></i>Eliminar
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal de confirmacion de eliminacion -->
+<div class="modal fade" id="deleteModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content bg-dark border-secondary">
+      <div class="modal-header border-secondary">
+        <h5 class="modal-title text-danger">
+          <i class="bi bi-exclamation-triangle me-2"></i>Eliminar Repisa
+        </h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+      </div>
+      <div class="modal-body">
+        <p>Estas seguro de que quieres eliminar la repisa <strong>"{{shelf.name}}"</strong>?</p>
+        <p class="text-danger mb-0">
+          <i class="bi bi-exclamation-circle me-1"></i>
+          Esta accion no se puede deshacer. Todos los items de la repisa seran eliminados.
+        </p>
+      </div>
+      <div class="modal-footer border-secondary">
+        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
+        <form action="/shelf/{{shelf.id}}/delete" method="POST" class="d-inline">
+          <button type="submit" class="btn btn-danger">
+            <i class="bi bi-trash me-2"></i>Si, Eliminar
+          </button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,169 @@
+<!-- Perfil de usuario -->
+<div class="profile-page">
+  <!-- Portada -->
+  <div class="profile-cover" style="{{#if profile.coverUrl}}background-image: url('{{profile.coverUrl}}'){{/if}}">
+    <div class="profile-cover-overlay"></div>
+  </div>
+
+  <div class="container">
+    <div class="profile-header">
+      <div class="row align-items-end">
+        <div class="col-auto">
+          <!-- Avatar -->
+          <div class="profile-avatar-container">
+            {{#if profile.avatarUrl}}
+              <img src="{{profile.avatarUrl}}" alt="{{profile.username}}" class="profile-avatar">
+            {{else}}
+              <div class="profile-avatar-placeholder">
+                {{substring profile.username 0 1}}
+              </div>
+            {{/if}}
+          </div>
+        </div>
+        <div class="col">
+          <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-end">
+            <div>
+              <h2 class="mb-1">{{profile.username}}</h2>
+              {{#if profile.bio}}
+                <p class="text-muted mb-2">{{profile.bio}}</p>
+              {{/if}}
+              <small class="text-muted">
+                <i class="bi bi-calendar3 me-1"></i>
+                Miembro desde {{formatDate profile.created_at}}
+              </small>
+            </div>
+            <div class="mt-3 mt-md-0">
+              {{#if isOwnProfile}}
+                <a href="/user/edit" class="btn btn-outline-primary">
+                  <i class="bi bi-pencil me-2"></i>Editar Perfil
+                </a>
+              {{else}}
+                <!-- Botones de amistad (se implementaran en Fase 4) -->
+                {{#if (eq profile.friendshipStatus.status 'none')}}
+                  <button class="btn btn-primary" disabled>
+                    <i class="bi bi-person-plus me-2"></i>Agregar Amigo
+                  </button>
+                {{/if}}
+                {{#if (eq profile.friendshipStatus.status 'pending')}}
+                  {{#if profile.friendshipStatus.isRequester}}
+                    <button class="btn btn-secondary" disabled>
+                      <i class="bi bi-clock me-2"></i>Solicitud Enviada
+                    </button>
+                  {{else}}
+                    <button class="btn btn-success" disabled>
+                      <i class="bi bi-check-lg me-2"></i>Aceptar
+                    </button>
+                  {{/if}}
+                {{/if}}
+                {{#if (eq profile.friendshipStatus.status 'accepted')}}
+                  <span class="badge bg-success">
+                    <i class="bi bi-people-fill me-1"></i>Amigos
+                  </span>
+                {{/if}}
+              {{/if}}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Contenido del perfil - Repisas -->
+    <div class="row mt-4">
+      <div class="col-12">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <h4 class="mb-0">
+            <i class="bi bi-bookshelf me-2"></i>Repisas
+          </h4>
+          {{#if isOwnProfile}}
+            <a href="/shelf/create" class="btn btn-primary">
+              <i class="bi bi-plus-lg me-2"></i>Nueva Repisa
+            </a>
+          {{/if}}
+        </div>
+
+        {{#if shelves.length}}
+        <!-- Grid de repisas (2 columnas, layout horizontal) -->
+        <div class="row g-4">
+          {{#each shelves}}
+          <div class="col-md-6">
+            <a href="/shelf/{{id}}" class="text-decoration-none">
+              <div class="card bg-dark border-secondary h-100 shelf-card-horizontal">
+                <!-- Preview horizontal de thumbnails (hasta 8) -->
+                <div class="shelf-preview-horizontal">
+                  {{#if previewImages.length}}
+                    <div class="shelf-preview-row">
+                      {{#each previewImages}}
+                        <div class="shelf-preview-thumb" style="background-image: url('{{this}}')"></div>
+                      {{/each}}
+                      {{#unless (gte previewImages.length 8)}}
+                        {{#times (subtract 8 previewImages.length)}}
+                          <div class="shelf-preview-thumb-empty">
+                            <i class="bi {{../../categoryInfo.icon}}"></i>
+                          </div>
+                        {{/times}}
+                      {{/unless}}
+                    </div>
+                  {{else}}
+                    <div class="shelf-preview-horizontal-empty">
+                      <i class="bi {{categoryInfo.icon}} fs-1 text-{{categoryInfo.color}}"></i>
+                    </div>
+                  {{/if}}
+
+                  <!-- Badge de categoria -->
+                  <span class="shelf-category-badge badge bg-{{categoryInfo.color}}">
+                    <i class="bi {{categoryInfo.icon}} me-1"></i>{{categoryInfo.name}}
+                  </span>
+
+                  {{#unless isPublic}}
+                    <span class="shelf-private-badge badge bg-dark">
+                      <i class="bi bi-lock"></i>
+                    </span>
+                  {{/unless}}
+                </div>
+
+                <div class="card-body">
+                  <h5 class="card-title text-white mb-1">{{name}}</h5>
+                  {{#if description}}
+                    <p class="card-text text-muted small text-truncate-2">{{description}}</p>
+                  {{/if}}
+                  <small class="text-muted">
+                    <i class="bi bi-collection me-1"></i>
+                    {{itemCount}} {{pluralize itemCount "item" "items"}}
+                  </small>
+                </div>
+              </div>
+            </a>
+          </div>
+          {{/each}}
+        </div>
+        {{else}}
+        <!-- Estado vacio -->
+        <div class="card bg-dark border-secondary">
+          <div class="card-body text-center py-5">
+            <i class="bi bi-bookshelf fs-1 text-muted"></i>
+            <h5 class="mt-3">
+              {{#if isOwnProfile}}
+                Aun no tienes repisas
+              {{else}}
+                {{profile.username}} aun no tiene repisas
+              {{/if}}
+            </h5>
+            <p class="text-muted">
+              {{#if isOwnProfile}}
+                Crea tu primera repisa para comenzar a organizar tus favoritos.
+              {{else}}
+                Vuelve pronto para ver sus colecciones.
+              {{/if}}
+            </p>
+            {{#if isOwnProfile}}
+              <a href="/shelf/create" class="btn btn-primary">
+                <i class="bi bi-plus-lg me-2"></i>Crear Primera Repisa
+              </a>
+            {{/if}}
+          </div>
+        </div>
+        {{/if}}
+      </div>
+    </div>
+  </div>
+</div>

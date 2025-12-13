@@ -1,0 +1,68 @@
+<!-- Pagina de inicio de sesion -->
+<div class="container py-5">
+  <div class="row justify-content-center">
+    <div class="col-md-5">
+      <div class="card bg-dark border-secondary">
+        <div class="card-body p-4">
+          <div class="text-center mb-4">
+            <i class="bi bi-bookshelf fs-1 text-primary"></i>
+            <h3 class="mt-2">Iniciar Sesion</h3>
+            <p class="text-muted">Bienvenido de nuevo a Shelfie</p>
+          </div>
+
+          <form action="/auth/login" method="POST" novalidate>
+            <div class="mb-3">
+              <label for="identifier" class="form-label">Usuario o Email</label>
+              <div class="input-group">
+                <span class="input-group-text bg-dark border-secondary">
+                  <i class="bi bi-person"></i>
+                </span>
+                <input
+                  type="text"
+                  class="form-control bg-dark border-secondary"
+                  id="identifier"
+                  name="identifier"
+                  placeholder="tu_usuario o email@ejemplo.com"
+                  value="{{formData.identifier}}"
+                  required
+                  autofocus
+                >
+              </div>
+            </div>
+
+            <div class="mb-4">
+              <label for="password" class="form-label">Contrasena</label>
+              <div class="input-group">
+                <span class="input-group-text bg-dark border-secondary">
+                  <i class="bi bi-lock"></i>
+                </span>
+                <input
+                  type="password"
+                  class="form-control bg-dark border-secondary"
+                  id="password"
+                  name="password"
+                  placeholder="Tu contrasena"
+                  required
+                >
+                <button class="btn btn-outline-secondary" type="button" id="togglePassword">
+                  <i class="bi bi-eye"></i>
+                </button>
+              </div>
+            </div>
+
+            <button type="submit" class="btn btn-primary w-100 mb-3">
+              <i class="bi bi-box-arrow-in-right me-2"></i>Iniciar Sesion
+            </button>
+          </form>
+
+          <hr class="border-secondary">
+
+          <p class="text-center text-muted mb-0">
+            No tienes cuenta?
+            <a href="/auth/register" class="text-primary text-decoration-none">Crear una cuenta</a>
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

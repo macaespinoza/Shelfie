@@ -1,0 +1,283 @@
+<!-- Pagina de detalle de repisa -->
+<div class="container py-4">
+  <!-- Header de la repisa -->
+  <div class="card bg-dark border-secondary mb-4">
+    <div class="card-body">
+      <div class="d-flex flex-column flex-md-row justify-content-between align-items-start">
+        <div class="d-flex align-items-center mb-3 mb-md-0">
+          <div class="shelf-category-icon bg-{{shelf.categoryInfo.color}} bg-opacity-25 text-{{shelf.categoryInfo.color}} rounded p-3 me-3">
+            <i class="bi {{shelf.categoryInfo.icon}} fs-2"></i>
+          </div>
+          <div>
+            <h2 class="mb-1">{{shelf.name}}</h2>
+            <div class="d-flex align-items-center text-muted">
+              <a href="/user/{{shelf.owner.username}}" class="text-decoration-none text-muted me-3">
+                <i class="bi bi-person me-1"></i>{{shelf.owner.username}}
+              </a>
+              <span class="me-3">
+                <i class="bi bi-{{#if shelf.isPublic}}globe{{else}}lock{{/if}} me-1"></i>
+                {{#if shelf.isPublic}}Publica{{else}}Privada{{/if}}
+              </span>
+              <span>
+                <i class="bi bi-collection me-1"></i>
+                {{shelf.items.length}} {{pluralize shelf.items.length "item" "items"}}
+              </span>
+            </div>
+            {{#if shelf.description}}
+              <p class="text-muted mt-2 mb-0">{{shelf.description}}</p>
+            {{/if}}
+          </div>
+        </div>
+
+        {{#if isOwner}}
+        <div class="d-flex gap-2">
+          <a href="/shelf/{{shelf.id}}/search" class="btn btn-primary">
+            <i class="bi bi-plus-lg me-2"></i>Agregar Item
+          </a>
+          <a href="/shelf/{{shelf.id}}/edit" class="btn btn-outline-secondary">
+            <i class="bi bi-pencil"></i>
+          </a>
+        </div>
+        {{/if}}
+      </div>
+      
+      {{#if isOwner}}
+      <hr class="border-secondary my-3">
+      <form action="/shelf/{{shelf.id}}/search" method="GET" class="d-flex gap-2">
+        <div class="input-group">
+          <span class="input-group-text bg-dark border-secondary">
+            <i class="bi bi-search"></i>
+          </span>
+          <input
+            type="text"
+            class="form-control bg-dark border-secondary"
+            name="q"
+            placeholder="Buscar {{shelf.categoryInfo.name}} para agregar..."
+          >
+        </div>
+        <button type="submit" class="btn btn-primary">Buscar</button>
+      </form>
+      {{/if}}
+    </div>
+  </div>
+
+  <!-- Lista de items -->
+  {{#if shelf.items.length}}
+  <div class="row g-4">
+    {{#each shelf.items}}
+    <div class="col-6 col-md-4 col-lg-3">
+      <div class="card bg-dark border-secondary h-100 shelf-item-card {{#if @root.isPortrait}}portrait{{/if}}">
+        <!-- Imagen del item -->
+        <div class="shelf-item-image">
+
+
+          {{#if ../isOwner}}
+          <!-- Badge de calificacion (Solo si existe) -->
+          {{#if rating}}
+          <div class="shelf-item-rating-badge rating-bg-{{rating}}">
+            {{rating}}
+          </div>
+          {{/if}}
+          {{/if}}
+
+          {{#if imageUrl}}
+            <img src="{{imageUrl}}" alt="{{title}}" class="card-img-top">
+          {{else}}
+            <div class="no-image-placeholder">
+              <i class="bi {{../shelf.categoryInfo.icon}} fs-1"></i>
+            </div>
+          {{/if}}
+        </div>
+
+        <div class="card-body p-2 shelf-item-content">
+          <h6 class="card-title mb-1 text-truncate" title="{{title}}">{{title}}</h6>
+          {{#if metadata.year}}
+            <small class="text-muted">{{metadata.year}}</small>
+          {{/if}}
+          {{#if metadata.artist}}
+            <small class="text-muted d-block text-truncate">{{metadata.artist}}</small>
+          {{/if}}
+          {{#if metadata.author}}
+            <small class="text-muted d-block text-truncate">{{metadata.author}}</small>
+          {{/if}}
+          
+          {{!-- Si no tiene calificacion ni reseña --}}
+          {{#unless rating}}
+            {{#unless review}}
+              {{#if ../isOwner}}
+              <div class="unrated-placeholder mt-2" 
+                   data-bs-toggle="modal" 
+                   data-bs-target="#editItemModal"
+                   data-item-id="{{id}}"
+                   data-item-title="{{title}}"
+                   data-item-rating="{{rating}}"
+                   data-item-review="{{review}}">
+                <small class="text-muted d-block mb-1">Sin calificar</small>
+                <small class="text-primary fw-bold"><i class="bi bi-pencil-fill me-1"></i>Escribe una reseña</small>
+              </div>
+              {{/if}}
+            {{/unless}}
+          {{/unless}}
+        </div>
+
+        {{#if review}}
+        <div class="card-footer bg-transparent border-secondary p-2">
+          <small class="text-muted text-truncate-2">{{review}}</small>
+        </div>
+        {{/if}}
+
+        {{#if ../isOwner}}
+        <div class="shelf-item-actions">
+          <button
+            class="shelf-item-action-btn edit"
+            data-bs-toggle="modal"
+            data-bs-target="#editItemModal"
+            data-item-id="{{id}}"
+            data-item-title="{{title}}"
+            data-item-rating="{{rating}}"
+            data-item-review="{{review}}"
+          >
+            <i class="bi bi-pencil"></i> Editar
+          </button>
+          <form action="/shelf/item/{{id}}/delete" method="POST" class="d-inline flex-grow-1 m-0" onsubmit="return confirm('Eliminar este item?')">
+            <button type="submit" class="shelf-item-action-btn delete w-100">
+              <i class="bi bi-trash"></i> Eliminar
+            </button>
+          </form>
+        </div>
+        {{/if}}
+      </div>
+    </div>
+    {{/each}}
+  </div>
+  {{else}}
+  <!-- Estado vacio -->
+  <div class="card bg-dark border-secondary">
+    <div class="card-body text-center py-5">
+      <i class="bi {{shelf.categoryInfo.icon}} fs-1 text-{{shelf.categoryInfo.color}}"></i>
+      <h5 class="mt-3">Esta repisa esta vacia</h5>
+      <p class="text-muted">
+        {{#if isOwner}}
+          Comienza a agregar tu {{shelf.categoryInfo.name}} favorito.
+        {{else}}
+          {{shelf.owner.username}} aun no ha agregado contenido.
+        {{/if}}
+      </p>
+      {{#if isOwner}}
+        <a href="/shelf/{{shelf.id}}/search" class="btn btn-primary">
+          <i class="bi bi-plus-lg me-2"></i>Agregar {{shelf.categoryInfo.name}}
+        </a>
+      {{/if}}
+    </div>
+  </div>
+  {{/if}}
+</div>
+
+{{#if isOwner}}
+<!-- Modal para editar item -->
+<div class="modal fade" id="editItemModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content bg-dark border-secondary">
+      <div class="modal-header border-secondary">
+        <h5 class="modal-title">Editar Item</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+      </div>
+      <form id="editItemForm" method="POST">
+        <div class="modal-body">
+          <h6 id="editItemTitle" class="mb-3"></h6>
+
+          <!-- Rating -->
+          <div class="mb-3">
+            <label class="form-label">Calificacion</label>
+            <div class="rating-selector" id="editRatingSelector">
+              {{#times 10}}
+                <button type="button" class="btn btn-outline-secondary btn-sm rating-btn rating-btn-{{addOne index}}" data-rating="{{addOne index}}">
+                  {{addOne index}}
+                </button>
+              {{/times}}
+            </div>
+            <input type="hidden" name="rating" id="editRatingInput">
+          </div>
+
+          <!-- Resena -->
+          <div class="mb-3">
+            <label for="editReview" class="form-label">Resena (opcional)</label>
+            <textarea
+              class="form-control bg-dark border-secondary"
+              id="editReview"
+              name="review"
+              rows="4"
+              maxlength="2000"
+              placeholder="Escribe tu opinion..."
+            ></textarea>
+          </div>
+        </div>
+        <div class="modal-footer border-secondary">
+          <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
+          <button type="submit" class="btn btn-primary">Guardar</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  const editModal = document.getElementById('editItemModal')
+  // Definitions of colors for JS dynamic changes if needed, but classes handle most
+  const ratingClasses = {
+    1: 'rating-bg-1', 2: 'rating-bg-2', 3: 'rating-bg-3', 4: 'rating-bg-4', 5: 'rating-bg-5',
+    6: 'rating-bg-6', 7: 'rating-bg-7', 8: 'rating-bg-8', 9: 'rating-bg-9', 10: 'rating-bg-10'
+  };
+
+  editModal.addEventListener('show.bs.modal', function(event) {
+    const button = event.relatedTarget
+    const itemId = button.dataset.itemId
+    const itemTitle = button.dataset.itemTitle
+    const itemRating = button.dataset.itemRating
+    const itemReview = button.dataset.itemReview
+
+    // Actualizar formulario
+    document.getElementById('editItemForm').action = `/shelf/item/${itemId}/update`
+    document.getElementById('editItemTitle').textContent = itemTitle
+    document.getElementById('editRatingInput').value = itemRating || ''
+    document.getElementById('editReview').value = itemReview || ''
+
+    // Actualizar botones de rating
+    updateRatingButtons(itemRating);
+  })
+
+  // Rating selector
+  document.querySelectorAll('#editRatingSelector .rating-btn').forEach(btn => {
+    btn.addEventListener('click', function() {
+      const rating = this.dataset.rating
+      document.getElementById('editRatingInput').value = rating
+      updateRatingButtons(rating);
+    })
+  })
+
+  function updateRatingButtons(selectedRating) {
+     document.querySelectorAll('#editRatingSelector .rating-btn').forEach(btn => {
+      const rating = btn.dataset.rating;
+      
+      // Default state: Outline with specific color
+      // Remove all potential classes first
+      btn.className = `btn btn-sm rating-btn rating-outline-${rating}`;
+      btn.style.borderColor = '';
+      btn.style.transform = '';
+      
+      // If selected
+      if (rating == selectedRating) {
+         // Apply solid background and remove outline
+         btn.classList.remove(`rating-outline-${rating}`);
+         btn.classList.add(ratingClasses[rating]);
+         
+         btn.style.borderColor = 'transparent';
+         btn.style.transform = 'scale(1.1)';
+      }
+    })
+  }
+})
+</script>
+{{/if}}
+

@@ -1,0 +1,312 @@
+{{#if isLanding}}
+<!-- Pagina de inicio para visitantes -->
+<div class="landing-hero">
+  <div class="container">
+    <div class="row align-items-center min-vh-75">
+      <div class="col-lg-6">
+        <h1 class="display-4 fw-bold mb-4">
+          Tu <span class="text-primary">repisa digital</span> para compartir lo que amas
+        </h1>
+        <p class="lead text-muted mb-4">
+          Crea colecciones de tus peliculas, series, musica, libros, videojuegos y podcasts favoritos.
+          Califica, resena y comparte con amigos.
+        </p>
+        <div class="d-flex gap-3 flex-wrap">
+          <a href="/auth/register" class="btn btn-primary btn-lg">
+            <i class="bi bi-rocket-takeoff me-2"></i>Comenzar Gratis
+          </a>
+          <a href="/auth/login" class="btn btn-outline-light btn-lg">
+            Ya tengo cuenta
+          </a>
+        </div>
+      </div>
+      <div class="col-lg-6 d-none d-lg-block">
+        <div class="categories-showcase">
+          <div class="row g-3">
+            <div class="col-4">
+              <div class="category-card p-3 rounded bg-dark border border-secondary text-center">
+                <i class="bi bi-music-note-beamed fs-1 text-success"></i>
+                <p class="mt-2 mb-0 small">Musica</p>
+              </div>
+            </div>
+            <div class="col-4">
+              <div class="category-card p-3 rounded bg-dark border border-secondary text-center">
+                <i class="bi bi-film fs-1 text-danger"></i>
+                <p class="mt-2 mb-0 small">Peliculas</p>
+              </div>
+            </div>
+            <div class="col-4">
+              <div class="category-card p-3 rounded bg-dark border border-secondary text-center">
+                <i class="bi bi-book fs-1 text-warning"></i>
+                <p class="mt-2 mb-0 small">Libros</p>
+              </div>
+            </div>
+            <div class="col-4">
+              <div class="category-card p-3 rounded bg-dark border border-secondary text-center">
+                <i class="bi bi-controller fs-1 text-info"></i>
+                <p class="mt-2 mb-0 small">Videojuegos</p>
+              </div>
+            </div>
+            <div class="col-4">
+              <div class="category-card p-3 rounded bg-dark border border-secondary text-center">
+                <i class="bi bi-tv fs-1 text-primary"></i>
+                <p class="mt-2 mb-0 small">Series</p>
+              </div>
+            </div>
+            <div class="col-4">
+              <div class="category-card p-3 rounded bg-dark border border-secondary text-center">
+                <i class="bi bi-mic fs-1 text-secondary"></i>
+                <p class="mt-2 mb-0 small">Podcasts</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Caracteristicas -->
+<section class="py-5 bg-dark">
+  <div class="container">
+    <h2 class="text-center mb-5">Como funciona</h2>
+    <div class="row g-4">
+      <div class="col-md-4">
+        <div class="text-center">
+          <div class="feature-icon mb-3">
+            <i class="bi bi-plus-square fs-1 text-primary"></i>
+          </div>
+          <h5>Crea tus repisas</h5>
+          <p class="text-muted">
+            Organiza tus favoritos en repisas por categoria. Agrega musica, peliculas, libros y mas.
+          </p>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="text-center">
+          <div class="feature-icon mb-3">
+            <i class="bi bi-star fs-1 text-warning"></i>
+          </div>
+          <h5>Califica y resena</h5>
+          <p class="text-muted">
+            Da tu calificacion del 1 al 10 y escribe tu opinion personal sobre cada item.
+          </p>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="text-center">
+          <div class="feature-icon mb-3">
+            <i class="bi bi-people fs-1 text-success"></i>
+          </div>
+          <h5>Conecta con otros</h5>
+          <p class="text-muted">
+            Descubre que les gusta a otros usuarios, haz amigos y chatea sobre tus intereses.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+{{else if isDashboard}}
+<!-- Dashboard para usuarios autenticados -->
+<div class="container py-4">
+  <div class="row">
+    <!-- Contenido principal -->
+    <div class="col-lg-8">
+      <!-- Crear publicacion -->
+      <div class="card bg-dark border-secondary mb-4">
+        <div class="card-body">
+          <form action="/post/create" method="POST" id="createPostForm">
+            <div class="d-flex">
+              {{#if currentUser.avatar}}
+                <img src="{{currentUser.avatar}}" alt="Tu avatar" class="rounded-circle me-3" width="48" height="48">
+              {{else}}
+                <div class="avatar-placeholder-lg-sm me-3">{{substring currentUser.username 0 1}}</div>
+              {{/if}}
+              <div class="flex-grow-1">
+                <textarea
+                  class="form-control bg-dark border-secondary mb-2"
+                  name="content"
+                  rows="2"
+                  placeholder="Que estas pensando, {{currentUser.username}}?"
+                  maxlength="2000"
+                  id="postContent"
+                ></textarea>
+
+                <!-- Selector de tipo de post -->
+                <div class="d-flex justify-content-between align-items-center">
+                  <div class="btn-group" role="group">
+                    <input type="radio" class="btn-check" name="postType" id="postTypeText" value="text" checked>
+                    <label class="btn btn-outline-secondary btn-sm" for="postTypeText">
+                      <i class="bi bi-chat-text me-1"></i>Texto
+                    </label>
+
+                    <input type="radio" class="btn-check" name="postType" id="postTypeShelf" value="shelf_share">
+                    <label class="btn btn-outline-secondary btn-sm" for="postTypeShelf">
+                      <i class="bi bi-bookshelf me-1"></i>Repisa
+                    </label>
+                  </div>
+                  <button type="submit" class="btn btn-primary btn-sm">
+                    <i class="bi bi-send me-2"></i>Publicar
+                  </button>
+                </div>
+
+                <!-- Selector de repisa (oculto por defecto) -->
+                <div id="shelfSelector" class="mt-3 d-none">
+                  <label class="form-label small text-muted">Selecciona una repisa para compartir:</label>
+                  <select class="form-select form-select-sm bg-dark border-secondary" name="referenceId" id="shelfSelect">
+                    <option value="">-- Seleccionar repisa --</option>
+                    {{#each userShelves}}
+                    <option value="{{id}}">
+                      {{name}} ({{categoryInfo.name}} - {{itemCount}} items)
+                    </option>
+                    {{/each}}
+                  </select>
+                </div>
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      <!-- Feed de publicaciones -->
+      <div class="feed-container">
+        <h5 class="mb-3">
+          <i class="bi bi-rss me-2"></i>Feed
+        </h5>
+
+        {{#if posts.length}}
+          {{#each posts}}
+            {{> post-card}}
+          {{/each}}
+
+          {{#if hasMorePosts}}
+          <div class="text-center mt-3">
+            <button class="btn btn-outline-primary" id="loadMorePosts" data-page="2">
+              <i class="bi bi-arrow-down me-2"></i>Cargar mas
+            </button>
+          </div>
+          {{/if}}
+        {{else}}
+          <div class="card bg-dark border-secondary">
+            <div class="card-body text-center py-5">
+              <i class="bi bi-newspaper fs-1 text-muted"></i>
+              <h5 class="mt-3">El feed esta vacio</h5>
+              <p class="text-muted">
+                Se el primero en publicar algo o crea una repisa para compartir.
+              </p>
+              <div class="d-flex gap-2 justify-content-center">
+                <a href="/shelf/create" class="btn btn-primary">
+                  <i class="bi bi-plus-lg me-2"></i>Crear Repisa
+                </a>
+                <a href="/user/{{currentUser.username}}" class="btn btn-outline-secondary">
+                  <i class="bi bi-person me-2"></i>Ver mi perfil
+                </a>
+              </div>
+            </div>
+          </div>
+        {{/if}}
+      </div>
+    </div>
+
+    <!-- Sidebar -->
+    <div class="col-lg-4">
+      <!-- Quick links -->
+      <div class="card bg-dark border-secondary mb-3">
+        <div class="card-body">
+          <div class="d-flex gap-2 flex-wrap">
+            <a href="/user/{{currentUser.username}}" class="btn btn-outline-primary btn-sm">
+              <i class="bi bi-person me-1"></i>Mi Perfil
+            </a>
+            <a href="/shelf/create" class="btn btn-outline-success btn-sm">
+              <i class="bi bi-plus-lg me-1"></i>Nueva Repisa
+            </a>
+            <a href="/user/edit" class="btn btn-outline-secondary btn-sm">
+              <i class="bi bi-gear me-1"></i>Configuracion
+            </a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Mis repisas -->
+      {{#if userShelves.length}}
+      <div class="card bg-dark border-secondary mb-3">
+        <div class="card-header d-flex justify-content-between align-items-center">
+          <h6 class="mb-0"><i class="bi bi-bookshelf me-2"></i>Mis Repisas</h6>
+          <a href="/shelf/create" class="btn btn-sm btn-outline-primary">
+            <i class="bi bi-plus-lg"></i>
+          </a>
+        </div>
+        <div class="card-body">
+          <ul class="list-unstyled mb-0">
+            {{#each userShelves}}
+            <li class="mb-2">
+              <a href="/shelf/{{id}}" class="text-decoration-none d-flex align-items-center text-white">
+                <span class="badge bg-{{categoryInfo.color}} me-2">
+                  <i class="bi {{categoryInfo.icon}}"></i>
+                </span>
+                <span class="text-truncate">{{name}}</span>
+                <small class="text-muted ms-auto">{{itemCount}}</small>
+              </a>
+            </li>
+            {{/each}}
+          </ul>
+        </div>
+      </div>
+      {{/if}}
+
+      <!-- Usuarios recientes -->
+      <div class="card bg-dark border-secondary">
+        <div class="card-header">
+          <h6 class="mb-0"><i class="bi bi-people me-2"></i>Usuarios recientes</h6>
+        </div>
+        <div class="card-body">
+          {{#if recentUsers}}
+            <ul class="list-unstyled mb-0">
+              {{#each recentUsers}}
+              <li class="d-flex align-items-center mb-3">
+                <a href="/user/{{this.username}}" class="text-decoration-none d-flex align-items-center">
+                  {{#if this.avatarUrl}}
+                    <img src="{{this.avatarUrl}}" alt="{{this.username}}" class="rounded-circle me-2" width="40" height="40">
+                  {{else}}
+                    <div class="avatar-placeholder me-2">
+                      {{substring this.username 0 1}}
+                    </div>
+                  {{/if}}
+                  <div>
+                    <span class="text-white">{{this.username}}</span>
+                    {{#if this.bio}}
+                      <p class="text-muted small mb-0 text-truncate" style="max-width: 150px;">{{this.bio}}</p>
+                    {{/if}}
+                  </div>
+                </a>
+              </li>
+              {{/each}}
+            </ul>
+          {{else}}
+            <p class="text-muted mb-0">No hay usuarios recientes.</p>
+          {{/if}}
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+{{else if error404}}
+<!-- Pagina 404 -->
+<div class="container py-5">
+  <div class="row justify-content-center">
+    <div class="col-md-6 text-center">
+      <h1 class="display-1 fw-bold text-primary">404</h1>
+      <h2 class="mb-4">Pagina no encontrada</h2>
+      <p class="text-muted mb-4">
+        La pagina que buscas no existe o ha sido movida.
+      </p>
+      <a href="/" class="btn btn-primary">
+        <i class="bi bi-house-door me-2"></i>Volver al inicio
+      </a>
+    </div>
+  </div>
+</div>
+{{/if}}

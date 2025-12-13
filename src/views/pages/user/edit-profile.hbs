@@ -1,0 +1,191 @@
+<!-- Pagina de edicion de perfil -->
+<div class="container py-4">
+  <div class="row">
+    <div class="col-lg-3 mb-4">
+      <!-- Menu lateral -->
+      <div class="card bg-dark border-secondary">
+        <div class="card-body">
+          <h6 class="text-muted mb-3">CONFIGURACION</h6>
+          <nav class="nav flex-column">
+            <a class="nav-link active px-0" href="#profile-section">
+              <i class="bi bi-person me-2"></i>Perfil
+            </a>
+            <a class="nav-link px-0" href="#images-section">
+              <i class="bi bi-image me-2"></i>Imagenes
+            </a>
+            <a class="nav-link px-0" href="#password-section">
+              <i class="bi bi-shield-lock me-2"></i>Contrasena
+            </a>
+          </nav>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-lg-9">
+      <!-- Seccion de perfil basico -->
+      <div class="card bg-dark border-secondary mb-4" id="profile-section">
+        <div class="card-header">
+          <h5 class="mb-0">
+            <i class="bi bi-person me-2"></i>Informacion del Perfil
+          </h5>
+        </div>
+        <div class="card-body">
+          <form action="/user/edit" method="POST">
+            <div class="row">
+              <div class="col-md-6 mb-3">
+                <label for="username" class="form-label">Nombre de usuario</label>
+                <div class="input-group">
+                  <span class="input-group-text bg-dark border-secondary">@</span>
+                  <input
+                    type="text"
+                    class="form-control bg-dark border-secondary"
+                    id="username"
+                    name="username"
+                    value="{{currentUser.username}}"
+                    pattern="^[a-zA-Z0-9_]+$"
+                    minlength="3"
+                    maxlength="30"
+                    required
+                  >
+                </div>
+              </div>
+
+              <div class="col-md-6 mb-3">
+                <label for="email" class="form-label">Correo electronico</label>
+                <input
+                  type="email"
+                  class="form-control bg-dark border-secondary"
+                  id="email"
+                  name="email"
+                  value="{{currentUser.email}}"
+                  required
+                >
+              </div>
+            </div>
+
+            <div class="mb-3">
+              <label for="bio" class="form-label">Biografia</label>
+              <textarea
+                class="form-control bg-dark border-secondary"
+                id="bio"
+                name="bio"
+                rows="3"
+                maxlength="500"
+                placeholder="Cuentanos sobre ti..."
+              >{{currentUser.bio}}</textarea>
+              <div class="form-text">Maximo 500 caracteres</div>
+            </div>
+
+            <button type="submit" class="btn btn-primary">
+              <i class="bi bi-check-lg me-2"></i>Guardar Cambios
+            </button>
+          </form>
+        </div>
+      </div>
+
+      <!-- Seccion de imagenes -->
+      <div class="card bg-dark border-secondary mb-4" id="images-section">
+        <div class="card-header">
+          <h5 class="mb-0">
+            <i class="bi bi-image me-2"></i>Imagenes de Perfil
+          </h5>
+        </div>
+        <div class="card-body">
+          <div class="row">
+            <!-- Avatar -->
+            <div class="col-md-6 mb-4 mb-md-0">
+              <h6 class="mb-3">Avatar</h6>
+              <div class="d-flex align-items-center mb-3">
+                {{#if currentUser.avatar}}
+                  <img src="{{currentUser.avatar}}" alt="Avatar actual" class="rounded-circle me-3" width="80" height="80">
+                {{else}}
+                  <div class="avatar-placeholder-lg me-3">
+                    {{substring currentUser.username 0 1}}
+                  </div>
+                {{/if}}
+                <div class="flex-grow-1">
+                  <p class="text-muted small mb-2">JPG, PNG o WebP. Maximo 5MB.</p>
+                  <form action="/user/avatar" method="POST" enctype="multipart/form-data" id="avatarForm">
+                    <div class="input-group input-group-sm">
+                      <input type="file" class="form-control bg-dark border-secondary" name="avatar" accept="image/*" required>
+                      <button type="submit" class="btn btn-outline-primary">Subir</button>
+                    </div>
+                  </form>
+                </div>
+              </div>
+            </div>
+
+            <!-- Portada -->
+            <div class="col-md-6">
+              <h6 class="mb-3">Imagen de Portada</h6>
+              <div class="cover-preview mb-3" style="{{#if currentUser.coverImage}}background-image: url('{{currentUser.coverImage}}'){{/if}}">
+                {{#unless currentUser.coverImage}}
+                  <span class="text-muted small">Sin portada</span>
+                {{/unless}}
+              </div>
+              <p class="text-muted small mb-2">Tamano recomendado: 1200x400px</p>
+              <form action="/user/cover" method="POST" enctype="multipart/form-data" id="coverForm">
+                <div class="input-group input-group-sm">
+                  <input type="file" class="form-control bg-dark border-secondary" name="cover" accept="image/*" required>
+                  <button type="submit" class="btn btn-outline-primary">Subir</button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Seccion de contrasena -->
+      <div class="card bg-dark border-secondary" id="password-section">
+        <div class="card-header">
+          <h5 class="mb-0">
+            <i class="bi bi-shield-lock me-2"></i>Cambiar Contrasena
+          </h5>
+        </div>
+        <div class="card-body">
+          <form action="/user/password" method="POST">
+            <div class="row">
+              <div class="col-md-12 mb-3">
+                <label for="currentPassword" class="form-label">Contrasena Actual</label>
+                <input
+                  type="password"
+                  class="form-control bg-dark border-secondary"
+                  id="currentPassword"
+                  name="currentPassword"
+                  required
+                >
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-md-6 mb-3">
+                <label for="newPassword" class="form-label">Nueva Contrasena</label>
+                <input
+                  type="password"
+                  class="form-control bg-dark border-secondary"
+                  id="newPassword"
+                  name="newPassword"
+                  minlength="6"
+                  required
+                >
+              </div>
+              <div class="col-md-6 mb-3">
+                <label for="confirmPassword" class="form-label">Confirmar Nueva Contrasena</label>
+                <input
+                  type="password"
+                  class="form-control bg-dark border-secondary"
+                  id="confirmPassword"
+                  name="confirmPassword"
+                  minlength="6"
+                  required
+                >
+              </div>
+            </div>
+            <button type="submit" class="btn btn-warning">
+              <i class="bi bi-key me-2"></i>Cambiar Contrasena
+            </button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
