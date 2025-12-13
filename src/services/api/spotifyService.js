@@ -1,10 +1,13 @@
 // Servicio para la API de Spotify
 // Documentacion: https://developer.spotify.com/documentation/web-api
 
+const cacheService = require('../cacheService')
+const { CACHE_TTL } = require('../cacheService')
+
 const SPOTIFY_AUTH_URL = 'https://accounts.spotify.com/api/token'
 const SPOTIFY_API_URL = 'https://api.spotify.com/v1'
 
-// Cache del token de acceso
+// Cache del token de acceso (este ya existe y es distinto del caché de datos)
 let accessToken = null
 let tokenExpiration = null
 
@@ -100,6 +103,11 @@ const spotifyService = {
 
   // Buscar musica (albums)
   async searchMusic(query, page = 1, limit = 20) {
+    // Verificar caché primero
+    const cacheKey = cacheService.generateKey('spotify_search_music', { query, page, limit })
+    const cached = cacheService.get(cacheKey)
+    if (cached) return cached
+
     const offset = (page - 1) * limit
 
     const data = await this.fetchApi('/search', {
@@ -115,25 +123,45 @@ const spotifyService = {
     const albums = data.albums?.items || []
     const results = albums.map(album => this.formatAlbum(album))
 
-    return {
+    const result = {
       results,
       page,
       totalResults: data.albums?.total || 0,
       totalPages: Math.ceil((data.albums?.total || 0) / limit)
     }
+
+    // Guardar en caché
+    cacheService.set(cacheKey, result, CACHE_TTL.SEARCH)
+
+    return result
   },
 
   // Obtener detalles de un album
   async getAlbumDetails(albumId) {
+    // Verificar caché primero
+    const cacheKey = cacheService.generateKey('spotify_album_details', { id: albumId })
+    const cached = cacheService.get(cacheKey)
+    if (cached) return cached
+
     const data = await this.fetchApi(`/albums/${albumId}`, { market: 'ES' })
 
     if (data.error) return null
 
-    return this.formatAlbum(data, true)
+    const result = this.formatAlbum(data, true)
+
+    // Guardar en caché (detalles duran más)
+    cacheService.set(cacheKey, result, CACHE_TTL.DETAILS)
+
+    return result
   },
 
   // Obtener nuevos lanzamientos
   async getNewReleases(page = 1, limit = 20) {
+    // Verificar caché primero
+    const cacheKey = cacheService.generateKey('spotify_new_releases', { page, limit })
+    const cached = cacheService.get(cacheKey)
+    if (cached) return cached
+
     const offset = (page - 1) * limit
 
     const data = await this.fetchApi('/browse/new-releases', {
@@ -144,11 +172,16 @@ const spotifyService = {
 
     if (data.error) return { results: [], error: data.error }
 
-    return {
+    const result = {
       results: data.albums?.items?.map(album => this.formatAlbum(album)) || [],
       page,
       totalResults: data.albums?.total || 0
     }
+
+    // Guardar en caché (contenido popular dura más)
+    cacheService.set(cacheKey, result, CACHE_TTL.POPULAR)
+
+    return result
   },
 
   // Formatear datos de album
@@ -193,6 +226,11 @@ const spotifyService = {
 
   // Buscar podcasts
   async searchPodcasts(query, page = 1, limit = 20) {
+    // Verificar caché primero
+    const cacheKey = cacheService.generateKey('spotify_search_podcasts', { query, page, limit })
+    const cached = cacheService.get(cacheKey)
+    if (cached) return cached
+
     const offset = (page - 1) * limit
 
     const data = await this.fetchApi('/search', {
@@ -208,21 +246,36 @@ const spotifyService = {
     const shows = data.shows?.items || []
     const results = shows.map(show => this.formatPodcast(show))
 
-    return {
+    const result = {
       results,
       page,
       totalResults: data.shows?.total || 0,
       totalPages: Math.ceil((data.shows?.total || 0) / limit)
     }
+
+    // Guardar en caché
+    cacheService.set(cacheKey, result, CACHE_TTL.SEARCH)
+
+    return result
   },
 
   // Obtener detalles de un podcast
   async getPodcastDetails(showId) {
+    // Verificar caché primero
+    const cacheKey = cacheService.generateKey('spotify_podcast_details', { id: showId })
+    const cached = cacheService.get(cacheKey)
+    if (cached) return cached
+
     const data = await this.fetchApi(`/shows/${showId}`, { market: 'ES' })
 
     if (data.error) return null
 
-    return this.formatPodcast(data, true)
+    const result = this.formatPodcast(data, true)
+
+    // Guardar en caché (detalles duran más)
+    cacheService.set(cacheKey, result, CACHE_TTL.DETAILS)
+
+    return result
   },
 
   // Formatear datos de podcast

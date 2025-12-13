@@ -1,6 +1,9 @@
 // Servicio para la API de TMDB (The Movie Database)
 // Documentacion: https://developers.themoviedb.org/3
 
+const cacheService = require('../cacheService')
+const { CACHE_TTL } = require('../cacheService')
+
 const TMDB_BASE_URL = 'https://api.themoviedb.org/3'
 const TMDB_IMAGE_BASE = 'https://image.tmdb.org/t/p'
 
@@ -71,40 +74,70 @@ const tmdbService = {
 
   // Buscar peliculas
   async searchMovies(query, page = 1) {
+    // Verificar caché primero
+    const cacheKey = cacheService.generateKey('tmdb_search_movies', { query, page })
+    const cached = cacheService.get(cacheKey)
+    if (cached) return cached
+
     const data = await this.fetchApi('/search/movie', { query, page })
 
     if (data.error) return { results: [], error: data.error }
 
     const results = data.results?.map(movie => this.formatMovie(movie)) || []
 
-    return {
+    const result = {
       results,
       page: data.page,
       totalPages: data.total_pages,
       totalResults: data.total_results
     }
+
+    // Guardar en caché
+    cacheService.set(cacheKey, result, CACHE_TTL.SEARCH)
+
+    return result
   },
 
   // Obtener detalles de una pelicula
   async getMovieDetails(movieId) {
+    // Verificar caché primero
+    const cacheKey = cacheService.generateKey('tmdb_movie_details', { id: movieId })
+    const cached = cacheService.get(cacheKey)
+    if (cached) return cached
+
     const data = await this.fetchApi(`/movie/${movieId}`)
 
     if (data.error) return null
 
-    return this.formatMovie(data, true)
+    const result = this.formatMovie(data, true)
+
+    // Guardar en caché (detalles duran más)
+    cacheService.set(cacheKey, result, CACHE_TTL.DETAILS)
+
+    return result
   },
 
   // Obtener peliculas populares
   async getPopularMovies(page = 1) {
+    // Verificar caché primero
+    const cacheKey = cacheService.generateKey('tmdb_popular_movies', { page })
+    const cached = cacheService.get(cacheKey)
+    if (cached) return cached
+
     const data = await this.fetchApi('/movie/popular', { page })
 
     if (data.error) return { results: [], error: data.error }
 
-    return {
+    const result = {
       results: data.results?.map(movie => this.formatMovie(movie)) || [],
       page: data.page,
       totalPages: data.total_pages
     }
+
+    // Guardar en caché (contenido popular dura más)
+    cacheService.set(cacheKey, result, CACHE_TTL.POPULAR)
+
+    return result
   },
 
   // Formatear datos de pelicula
@@ -146,40 +179,70 @@ const tmdbService = {
 
   // Buscar series
   async searchSeries(query, page = 1) {
+    // Verificar caché primero
+    const cacheKey = cacheService.generateKey('tmdb_search_series', { query, page })
+    const cached = cacheService.get(cacheKey)
+    if (cached) return cached
+
     const data = await this.fetchApi('/search/tv', { query, page })
 
     if (data.error) return { results: [], error: data.error }
 
     const results = data.results?.map(series => this.formatSeries(series)) || []
 
-    return {
+    const result = {
       results,
       page: data.page,
       totalPages: data.total_pages,
       totalResults: data.total_results
     }
+
+    // Guardar en caché
+    cacheService.set(cacheKey, result, CACHE_TTL.SEARCH)
+
+    return result
   },
 
   // Obtener detalles de una serie
   async getSeriesDetails(seriesId) {
+    // Verificar caché primero
+    const cacheKey = cacheService.generateKey('tmdb_series_details', { id: seriesId })
+    const cached = cacheService.get(cacheKey)
+    if (cached) return cached
+
     const data = await this.fetchApi(`/tv/${seriesId}`)
 
     if (data.error) return null
 
-    return this.formatSeries(data, true)
+    const result = this.formatSeries(data, true)
+
+    // Guardar en caché (detalles duran más)
+    cacheService.set(cacheKey, result, CACHE_TTL.DETAILS)
+
+    return result
   },
 
   // Obtener series populares
   async getPopularSeries(page = 1) {
+    // Verificar caché primero
+    const cacheKey = cacheService.generateKey('tmdb_popular_series', { page })
+    const cached = cacheService.get(cacheKey)
+    if (cached) return cached
+
     const data = await this.fetchApi('/tv/popular', { page })
 
     if (data.error) return { results: [], error: data.error }
 
-    return {
+    const result = {
       results: data.results?.map(series => this.formatSeries(series)) || [],
       page: data.page,
       totalPages: data.total_pages
     }
+
+    // Guardar en caché (contenido popular dura más)
+    cacheService.set(cacheKey, result, CACHE_TTL.POPULAR)
+
+    return result
   },
 
   // Formatear datos de serie

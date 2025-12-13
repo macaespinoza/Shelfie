@@ -1,6 +1,9 @@
 // Servicio para la API de RAWG (Videojuegos)
 // Documentacion: https://rawg.io/apidocs
 
+const cacheService = require('../cacheService')
+const { CACHE_TTL } = require('../cacheService')
+
 const RAWG_API_URL = 'https://api.rawg.io/api'
 
 const rawgService = {
@@ -47,6 +50,11 @@ const rawgService = {
 
   // Buscar videojuegos
   async searchGames(query, page = 1, pageSize = 20) {
+    // Verificar caché primero
+    const cacheKey = cacheService.generateKey('rawg_search_games', { query, page, pageSize })
+    const cached = cacheService.get(cacheKey)
+    if (cached) return cached
+
     const data = await this.fetchApi('/games', {
       search: query,
       page,
@@ -58,7 +66,7 @@ const rawgService = {
 
     const results = data.results?.map(game => this.formatGame(game)) || []
 
-    return {
+    const result = {
       results,
       page,
       totalResults: data.count || 0,
@@ -66,19 +74,39 @@ const rawgService = {
       next: data.next,
       previous: data.previous
     }
+
+    // Guardar en caché
+    cacheService.set(cacheKey, result, CACHE_TTL.SEARCH)
+
+    return result
   },
 
   // Obtener detalles de un juego
   async getGameDetails(gameId) {
+    // Verificar caché primero
+    const cacheKey = cacheService.generateKey('rawg_game_details', { id: gameId })
+    const cached = cacheService.get(cacheKey)
+    if (cached) return cached
+
     const data = await this.fetchApi(`/games/${gameId}`)
 
     if (data.error) return null
 
-    return this.formatGame(data, true)
+    const result = this.formatGame(data, true)
+
+    // Guardar en caché (detalles duran más)
+    cacheService.set(cacheKey, result, CACHE_TTL.DETAILS)
+
+    return result
   },
 
   // Obtener juegos populares
   async getPopularGames(page = 1, pageSize = 20) {
+    // Verificar caché primero
+    const cacheKey = cacheService.generateKey('rawg_popular_games', { page, pageSize })
+    const cached = cacheService.get(cacheKey)
+    if (cached) return cached
+
     const data = await this.fetchApi('/games', {
       page,
       page_size: pageSize,
@@ -88,15 +116,25 @@ const rawgService = {
 
     if (data.error) return { results: [], error: data.error }
 
-    return {
+    const result = {
       results: data.results?.map(game => this.formatGame(game)) || [],
       page,
       totalResults: data.count || 0
     }
+
+    // Guardar en caché (contenido popular dura más)
+    cacheService.set(cacheKey, result, CACHE_TTL.POPULAR)
+
+    return result
   },
 
   // Obtener juegos recientes
   async getRecentGames(page = 1, pageSize = 20) {
+    // Verificar caché primero
+    const cacheKey = cacheService.generateKey('rawg_recent_games', { page, pageSize })
+    const cached = cacheService.get(cacheKey)
+    if (cached) return cached
+
     const today = new Date()
     const lastYear = new Date(today.setFullYear(today.getFullYear() - 1))
     const dateFrom = lastYear.toISOString().split('T')[0]
@@ -111,15 +149,25 @@ const rawgService = {
 
     if (data.error) return { results: [], error: data.error }
 
-    return {
+    const result = {
       results: data.results?.map(game => this.formatGame(game)) || [],
       page,
       totalResults: data.count || 0
     }
+
+    // Guardar en caché
+    cacheService.set(cacheKey, result, CACHE_TTL.POPULAR)
+
+    return result
   },
 
   // Obtener juegos por genero
   async getGamesByGenre(genreSlug, page = 1, pageSize = 20) {
+    // Verificar caché primero
+    const cacheKey = cacheService.generateKey('rawg_games_genre', { genre: genreSlug, page, pageSize })
+    const cached = cacheService.get(cacheKey)
+    if (cached) return cached
+
     const data = await this.fetchApi('/games', {
       genres: genreSlug,
       page,
@@ -129,40 +177,65 @@ const rawgService = {
 
     if (data.error) return { results: [], error: data.error }
 
-    return {
+    const result = {
       results: data.results?.map(game => this.formatGame(game)) || [],
       page,
       totalResults: data.count || 0
     }
+
+    // Guardar en caché
+    cacheService.set(cacheKey, result, CACHE_TTL.POPULAR)
+
+    return result
   },
 
   // Obtener lista de generos
   async getGenres() {
+    // Verificar caché primero (datos estáticos, TTL largo)
+    const cacheKey = cacheService.generateKey('rawg_genres', {})
+    const cached = cacheService.get(cacheKey)
+    if (cached) return cached
+
     const data = await this.fetchApi('/genres')
 
     if (data.error) return []
 
-    return data.results?.map(genre => ({
+    const result = data.results?.map(genre => ({
       id: genre.id,
       name: genre.name,
       slug: genre.slug,
       gamesCount: genre.games_count,
       imageUrl: genre.image_background
     })) || []
+
+    // Guardar en caché (datos estáticos duran mucho)
+    cacheService.set(cacheKey, result, CACHE_TTL.STATIC)
+
+    return result
   },
 
   // Obtener lista de plataformas
   async getPlatforms() {
+    // Verificar caché primero (datos estáticos, TTL largo)
+    const cacheKey = cacheService.generateKey('rawg_platforms', {})
+    const cached = cacheService.get(cacheKey)
+    if (cached) return cached
+
     const data = await this.fetchApi('/platforms')
 
     if (data.error) return []
 
-    return data.results?.map(platform => ({
+    const result = data.results?.map(platform => ({
       id: platform.id,
       name: platform.name,
       slug: platform.slug,
       gamesCount: platform.games_count
     })) || []
+
+    // Guardar en caché (datos estáticos duran mucho)
+    cacheService.set(cacheKey, result, CACHE_TTL.STATIC)
+
+    return result
   },
 
   // Formatear datos de juego

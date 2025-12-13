@@ -363,6 +363,24 @@ ALTER TABLE shelf_items ADD CONSTRAINT IF NOT EXISTS chk_rating_range
 CHECK (rating IS NULL OR (rating >= 1 AND rating <= 10));
 
 -- ============================================
+-- Tabla: api_cache (Fase 5 - Optimización de APIs)
+-- Caché persistente para reducir llamadas a APIs externas
+-- ============================================
+CREATE TABLE IF NOT EXISTS api_cache (
+    id SERIAL PRIMARY KEY,
+    cache_key VARCHAR(255) UNIQUE NOT NULL,
+    api_source api_source NOT NULL,
+    data JSONB NOT NULL,
+    expires_at TIMESTAMP WITH TIME ZONE NOT NULL,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Índices para api_cache
+CREATE INDEX IF NOT EXISTS idx_api_cache_key ON api_cache(cache_key);
+CREATE INDEX IF NOT EXISTS idx_api_cache_expires ON api_cache(expires_at);
+CREATE INDEX IF NOT EXISTS idx_api_cache_source ON api_cache(api_source);
+
+-- ============================================
 -- Comentarios sobre las tablas (documentación)
 -- ============================================
 COMMENT ON TABLE users IS 'Usuarios registrados en la plataforma';
@@ -374,11 +392,12 @@ COMMENT ON TABLE likes IS 'Likes en publicaciones';
 COMMENT ON TABLE friendships IS 'Relaciones de amistad entre usuarios';
 COMMENT ON TABLE notifications IS 'Notificaciones para usuarios sobre actividad social';
 COMMENT ON TABLE sessions IS 'Sesiones de usuario para autenticación';
+COMMENT ON TABLE api_cache IS 'Caché persistente para respuestas de APIs externas (TMDB, Spotify, etc.)';
 
 -- ============================================
 -- NOTAS DE OPTIMIZACIÓN
 -- ============================================
--- Este schema incluye optimizaciones de Fase 2 y Fase 4:
+-- Este schema incluye optimizaciones de Fase 2, Fase 4 y Fase 5:
 --
 -- Fase 2 (Escalabilidad):
 -- ✓ Contadores denormalizados (likes_count, comments_count, friends_count, etc.)
@@ -394,6 +413,12 @@ COMMENT ON TABLE sessions IS 'Sesiones de usuario para autenticación';
 -- ✓ Índice idx_shelves_visibility para queries optimizadas por visibilidad
 -- ✓ Índice idx_friendships_status_users para consultas de amistades frecuentes
 -- ✓ Mantiene compatibilidad con campo is_public existente
+--
+-- Fase 5 (Optimización de APIs externas):
+-- ✓ Tabla api_cache para almacenar respuestas de APIs (TMDB, Spotify, OpenLibrary, RAWG)
+-- ✓ Caché en memoria implementado en cacheService.js (activo)
+-- ✓ Estructura preparada para caché persistente en BD (futuro)
+-- ✓ TTL configurable por tipo de contenido
 --
 -- Capacidad: 10K-50K usuarios activos
 -- Rendimiento: Queries 3-10x más rápidas vs schema básico

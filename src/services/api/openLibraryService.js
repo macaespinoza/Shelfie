@@ -2,6 +2,9 @@
 // Documentacion: https://openlibrary.org/developers/api
 // Esta API es gratuita y no requiere autenticacion
 
+const cacheService = require('../cacheService')
+const { CACHE_TTL } = require('../cacheService')
+
 const OPENLIB_API_URL = 'https://openlibrary.org'
 const OPENLIB_COVERS_URL = 'https://covers.openlibrary.org'
 
@@ -49,6 +52,11 @@ const openLibraryService = {
 
   // Buscar libros
   async searchBooks(query, page = 1, limit = 20) {
+    // Verificar caché primero
+    const cacheKey = cacheService.generateKey('openlib_search_books', { query, page, limit })
+    const cached = cacheService.get(cacheKey)
+    if (cached) return cached
+
     const data = await this.fetchApi('/search.json', {
       q: query,
       page,
@@ -60,16 +68,26 @@ const openLibraryService = {
 
     const results = data.docs?.map(book => this.formatBook(book)) || []
 
-    return {
+    const result = {
       results,
       page,
       totalResults: data.numFound || 0,
       totalPages: Math.ceil((data.numFound || 0) / limit)
     }
+
+    // Guardar en caché (libros cambian poco)
+    cacheService.set(cacheKey, result, CACHE_TTL.POPULAR)
+
+    return result
   },
 
   // Buscar libros por autor
   async searchByAuthor(author, page = 1, limit = 20) {
+    // Verificar caché primero
+    const cacheKey = cacheService.generateKey('openlib_search_author', { author, page, limit })
+    const cached = cacheService.get(cacheKey)
+    if (cached) return cached
+
     const data = await this.fetchApi('/search.json', {
       author,
       page,
@@ -78,15 +96,25 @@ const openLibraryService = {
 
     if (data.error) return { results: [], error: data.error }
 
-    return {
+    const result = {
       results: data.docs?.map(book => this.formatBook(book)) || [],
       page,
       totalResults: data.numFound || 0
     }
+
+    // Guardar en caché
+    cacheService.set(cacheKey, result, CACHE_TTL.POPULAR)
+
+    return result
   },
 
   // Buscar libros por titulo
   async searchByTitle(title, page = 1, limit = 20) {
+    // Verificar caché primero
+    const cacheKey = cacheService.generateKey('openlib_search_title', { title, page, limit })
+    const cached = cacheService.get(cacheKey)
+    if (cached) return cached
+
     const data = await this.fetchApi('/search.json', {
       title,
       page,
@@ -95,15 +123,25 @@ const openLibraryService = {
 
     if (data.error) return { results: [], error: data.error }
 
-    return {
+    const result = {
       results: data.docs?.map(book => this.formatBook(book)) || [],
       page,
       totalResults: data.numFound || 0
     }
+
+    // Guardar en caché
+    cacheService.set(cacheKey, result, CACHE_TTL.POPULAR)
+
+    return result
   },
 
   // Obtener detalles de un libro por su work key
   async getBookDetails(workKey) {
+    // Verificar caché primero
+    const cacheKey = cacheService.generateKey('openlib_book_details', { key: workKey })
+    const cached = cacheService.get(cacheKey)
+    if (cached) return cached
+
     // workKey viene en formato "/works/OL123W"
     const cleanKey = workKey.startsWith('/works/') ? workKey : `/works/${workKey}`
 
@@ -111,22 +149,38 @@ const openLibraryService = {
 
     if (data.error) return null
 
-    return this.formatBookDetails(data)
+    const result = this.formatBookDetails(data)
+
+    // Guardar en caché (detalles de libros duran mucho)
+    cacheService.set(cacheKey, result, CACHE_TTL.DETAILS)
+
+    return result
   },
 
   // Obtener detalles por ISBN
   async getBookByIsbn(isbn) {
+    // Verificar caché primero
+    const cacheKey = cacheService.generateKey('openlib_isbn', { isbn })
+    const cached = cacheService.get(cacheKey)
+    if (cached) return cached
+
     const data = await this.fetchApi(`/isbn/${isbn}.json`)
 
     if (data.error) return null
 
+    let result
     // Obtener mas detalles del work asociado
     if (data.works?.[0]?.key) {
       const workData = await this.fetchApi(`${data.works[0].key}.json`)
-      return this.formatBookFromEdition(data, workData)
+      result = this.formatBookFromEdition(data, workData)
+    } else {
+      result = this.formatBookFromEdition(data)
     }
 
-    return this.formatBookFromEdition(data)
+    // Guardar en caché (detalles de libros duran mucho)
+    cacheService.set(cacheKey, result, CACHE_TTL.DETAILS)
+
+    return result
   },
 
   // Formatear resultado de busqueda
@@ -206,6 +260,11 @@ const openLibraryService = {
 
   // Obtener libros trending/populares
   async getTrendingBooks(limit = 20) {
+    // Verificar caché primero
+    const cacheKey = cacheService.generateKey('openlib_trending', { limit })
+    const cached = cacheService.get(cacheKey)
+    if (cached) return cached
+
     // Open Library no tiene endpoint de trending, usamos una busqueda popular
     const data = await this.fetchApi('/search.json', {
       q: 'subject:fiction',
@@ -215,9 +274,14 @@ const openLibraryService = {
 
     if (data.error) return { results: [], error: data.error }
 
-    return {
+    const result = {
       results: data.docs?.map(book => this.formatBook(book)) || []
     }
+
+    // Guardar en caché (contenido popular dura más)
+    cacheService.set(cacheKey, result, CACHE_TTL.POPULAR)
+
+    return result
   }
 }
 
