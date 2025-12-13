@@ -1,0 +1,123 @@
+<!-- Lista de amigos -->
+<div class="container py-4">
+  <div class="row">
+    <!-- Sidebar de navegacion -->
+    <div class="col-lg-3 mb-4">
+      <div class="card">
+        <div class="card-body">
+          <h5 class="card-title mb-3">
+            <i class="bi bi-people me-2"></i>Amistades
+          </h5>
+          <nav class="nav flex-column">
+            <a class="nav-link {{#if (eq activeTab 'friends')}}active bg-primary rounded{{/if}}" href="/friends">
+              <i class="bi bi-people-fill me-2"></i>Mis Amigos
+              <span class="badge bg-secondary float-end">{{pagination.total}}</span>
+            </a>
+            <a class="nav-link {{#if (eq activeTab 'requests')}}active bg-primary rounded{{/if}}" href="/friends/requests">
+              <i class="bi bi-person-plus me-2"></i>Solicitudes
+              {{#if pendingCount}}
+              <span class="badge bg-danger float-end">{{pendingCount}}</span>
+              {{/if}}
+            </a>
+            <a class="nav-link {{#if (eq activeTab 'blocked')}}active bg-primary rounded{{/if}}" href="/friends/blocked">
+              <i class="bi bi-slash-circle me-2"></i>Bloqueados
+            </a>
+          </nav>
+        </div>
+      </div>
+    </div>
+
+    <!-- Contenido principal -->
+    <div class="col-lg-9">
+      <div class="card">
+        <div class="card-header d-flex justify-content-between align-items-center">
+          <h5 class="mb-0">
+            <i class="bi bi-people-fill me-2"></i>Mis Amigos
+          </h5>
+          <span class="badge bg-secondary">{{pagination.total}} {{pluralize pagination.total "amigo" "amigos"}}</span>
+        </div>
+        <div class="card-body">
+          {{#if friends.length}}
+          <div class="row g-3">
+            {{#each friends}}
+            <div class="col-md-6">
+              <div class="friend-card d-flex align-items-center p-3 rounded border">
+                <a href="/user/{{user.username}}" class="text-decoration-none">
+                  {{#if user.avatar}}
+                    <img src="/uploads/avatars/{{user.avatar}}" alt="{{user.username}}" class="rounded-circle me-3" width="56" height="56">
+                  {{else}}
+                    <div class="avatar-placeholder-lg-sm me-3">{{substring user.username 0 1}}</div>
+                  {{/if}}
+                </a>
+                <div class="flex-grow-1">
+                  <a href="/user/{{user.username}}" class="text-decoration-none">
+                    <h6 class="mb-1 text-white">{{user.username}}</h6>
+                  </a>
+                  {{#if user.bio}}
+                    <p class="text-muted small mb-0 text-truncate">{{user.bio}}</p>
+                  {{/if}}
+                </div>
+                <div class="dropdown">
+                  <button class="btn btn-link text-muted p-1" data-bs-toggle="dropdown">
+                    <i class="bi bi-three-dots-vertical"></i>
+                  </button>
+                  <ul class="dropdown-menu dropdown-menu-end dropdown-menu-dark">
+                    <li>
+                      <a class="dropdown-item" href="/user/{{user.username}}">
+                        <i class="bi bi-person me-2"></i>Ver perfil
+                      </a>
+                    </li>
+                    <li><hr class="dropdown-divider"></li>
+                    <li>
+                      <button class="dropdown-item friendship-btn" data-action="remove" data-friend-id="{{user.id}}">
+                        <i class="bi bi-person-dash me-2"></i>Eliminar amigo
+                      </button>
+                    </li>
+                    <li>
+                      <button class="dropdown-item text-danger friendship-btn" data-action="block" data-target-id="{{user.id}}">
+                        <i class="bi bi-slash-circle me-2"></i>Bloquear
+                      </button>
+                    </li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+            {{/each}}
+          </div>
+
+          <!-- Paginacion -->
+          {{#if (gt pagination.totalPages 1)}}
+          <nav class="mt-4">
+            <ul class="pagination justify-content-center mb-0">
+              <li class="page-item {{#if (eq pagination.page 1)}}disabled{{/if}}">
+                <a class="page-link" href="?page={{subtract pagination.page 1}}">
+                  <i class="bi bi-chevron-left"></i>
+                </a>
+              </li>
+              {{#times pagination.totalPages}}
+                <li class="page-item {{#if (eq (add @index 1) ../pagination.page)}}active{{/if}}">
+                  <a class="page-link" href="?page={{add @index 1}}">{{add @index 1}}</a>
+                </li>
+              {{/times}}
+              <li class="page-item {{#if (eq pagination.page pagination.totalPages)}}disabled{{/if}}">
+                <a class="page-link" href="?page={{add pagination.page 1}}">
+                  <i class="bi bi-chevron-right"></i>
+                </a>
+              </li>
+            </ul>
+          </nav>
+          {{/if}}
+
+          {{else}}
+          <!-- Estado vacio -->
+          <div class="text-center py-5">
+            <i class="bi bi-people fs-1 text-muted"></i>
+            <h5 class="mt-3">Aun no tienes amigos</h5>
+            <p class="text-muted">Busca usuarios y enviales solicitudes de amistad para conectar.</p>
+          </div>
+          {{/if}}
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

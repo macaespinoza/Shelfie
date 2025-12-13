@@ -3,7 +3,7 @@
   <div class="row">
     <div class="col-lg-3 mb-4">
       <!-- Menu lateral -->
-      <div class="card bg-dark border-secondary">
+      <div class="card">
         <div class="card-body">
           <h6 class="text-muted mb-3">CONFIGURACION</h6>
           <nav class="nav flex-column">
@@ -23,7 +23,7 @@
 
     <div class="col-lg-9">
       <!-- Seccion de perfil basico -->
-      <div class="card bg-dark border-secondary mb-4" id="profile-section">
+      <div class="card mb-4" id="profile-section">
         <div class="card-header">
           <h5 class="mb-0">
             <i class="bi bi-person me-2"></i>Informacion del Perfil
@@ -35,10 +35,10 @@
               <div class="col-md-6 mb-3">
                 <label for="username" class="form-label">Nombre de usuario</label>
                 <div class="input-group">
-                  <span class="input-group-text bg-dark border-secondary">@</span>
+                  <span class="input-group-text">@</span>
                   <input
                     type="text"
-                    class="form-control bg-dark border-secondary"
+                    class="form-control"
                     id="username"
                     name="username"
                     value="{{currentUser.username}}"
@@ -54,7 +54,7 @@
                 <label for="email" class="form-label">Correo electronico</label>
                 <input
                   type="email"
-                  class="form-control bg-dark border-secondary"
+                  class="form-control"
                   id="email"
                   name="email"
                   value="{{currentUser.email}}"
@@ -66,7 +66,7 @@
             <div class="mb-3">
               <label for="bio" class="form-label">Biografia</label>
               <textarea
-                class="form-control bg-dark border-secondary"
+                class="form-control"
                 id="bio"
                 name="bio"
                 rows="3"
@@ -84,7 +84,7 @@
       </div>
 
       <!-- Seccion de imagenes -->
-      <div class="card bg-dark border-secondary mb-4" id="images-section">
+      <div class="card mb-4" id="images-section">
         <div class="card-header">
           <h5 class="mb-0">
             <i class="bi bi-image me-2"></i>Imagenes de Perfil
@@ -107,7 +107,7 @@
                   <p class="text-muted small mb-2">JPG, PNG o WebP. Maximo 5MB.</p>
                   <form action="/user/avatar" method="POST" enctype="multipart/form-data" id="avatarForm">
                     <div class="input-group input-group-sm">
-                      <input type="file" class="form-control bg-dark border-secondary" name="avatar" accept="image/*" required>
+                      <input type="file" class="form-control" name="avatar" accept="image/*" required>
                       <button type="submit" class="btn btn-outline-primary">Subir</button>
                     </div>
                   </form>
@@ -126,7 +126,7 @@
               <p class="text-muted small mb-2">Tamano recomendado: 1200x400px</p>
               <form action="/user/cover" method="POST" enctype="multipart/form-data" id="coverForm">
                 <div class="input-group input-group-sm">
-                  <input type="file" class="form-control bg-dark border-secondary" name="cover" accept="image/*" required>
+                  <input type="file" class="form-control" name="cover" accept="image/*" required>
                   <button type="submit" class="btn btn-outline-primary">Subir</button>
                 </div>
               </form>
@@ -136,7 +136,7 @@
       </div>
 
       <!-- Seccion de contrasena -->
-      <div class="card bg-dark border-secondary" id="password-section">
+      <div class="card" id="password-section">
         <div class="card-header">
           <h5 class="mb-0">
             <i class="bi bi-shield-lock me-2"></i>Cambiar Contrasena
@@ -149,7 +149,7 @@
                 <label for="currentPassword" class="form-label">Contrasena Actual</label>
                 <input
                   type="password"
-                  class="form-control bg-dark border-secondary"
+                  class="form-control"
                   id="currentPassword"
                   name="currentPassword"
                   required
@@ -161,7 +161,7 @@
                 <label for="newPassword" class="form-label">Nueva Contrasena</label>
                 <input
                   type="password"
-                  class="form-control bg-dark border-secondary"
+                  class="form-control"
                   id="newPassword"
                   name="newPassword"
                   minlength="6"
@@ -172,7 +172,7 @@
                 <label for="confirmPassword" class="form-label">Confirmar Nueva Contrasena</label>
                 <input
                   type="password"
-                  class="form-control bg-dark border-secondary"
+                  class="form-control"
                   id="confirmPassword"
                   name="confirmPassword"
                   minlength="6"

@@ -27,10 +27,22 @@
               {{#if profile.bio}}
                 <p class="text-muted mb-2">{{profile.bio}}</p>
               {{/if}}
-              <small class="text-muted">
-                <i class="bi bi-calendar3 me-1"></i>
-                Miembro desde {{formatDate profile.created_at}}
-              </small>
+              <div class="d-flex flex-wrap gap-3 text-muted small">
+                <span>
+                  <i class="bi bi-calendar3 me-1"></i>
+                  Miembro desde {{formatDate profile.created_at}}
+                </span>
+                <a href="/user/{{profile.username}}/friends" class="text-muted text-decoration-none">
+                  <i class="bi bi-people me-1"></i>
+                  <strong>{{friendsCount}}</strong> {{pluralize friendsCount "amigo" "amigos"}}
+                </a>
+                {{#if mutualFriendsCount}}
+                <span class="text-info">
+                  <i class="bi bi-person-check me-1"></i>
+                  {{mutualFriendsCount}} {{pluralize mutualFriendsCount "amigo" "amigos"}} en comun
+                </span>
+                {{/if}}
+              </div>
             </div>
             <div class="mt-3 mt-md-0">
               {{#if isOwnProfile}}
@@ -38,28 +50,64 @@
                   <i class="bi bi-pencil me-2"></i>Editar Perfil
                 </a>
               {{else}}
-                <!-- Botones de amistad (se implementaran en Fase 4) -->
-                {{#if (eq profile.friendshipStatus.status 'none')}}
-                  <button class="btn btn-primary" disabled>
-                    <i class="bi bi-person-plus me-2"></i>Agregar Amigo
-                  </button>
-                {{/if}}
-                {{#if (eq profile.friendshipStatus.status 'pending')}}
-                  {{#if profile.friendshipStatus.isRequester}}
-                    <button class="btn btn-secondary" disabled>
-                      <i class="bi bi-clock me-2"></i>Solicitud Enviada
-                    </button>
-                  {{else}}
-                    <button class="btn btn-success" disabled>
-                      <i class="bi bi-check-lg me-2"></i>Aceptar
+                <!-- Botones de amistad -->
+                <div class="friendship-actions" data-user-id="{{profile.id}}">
+                  {{#if (eq relationshipStatus.status 'none')}}
+                    <button class="btn btn-primary friendship-btn" data-action="add" data-user-id="{{profile.id}}">
+                      <i class="bi bi-person-plus me-2"></i>Agregar Amigo
                     </button>
                   {{/if}}
-                {{/if}}
-                {{#if (eq profile.friendshipStatus.status 'accepted')}}
-                  <span class="badge bg-success">
-                    <i class="bi bi-people-fill me-1"></i>Amigos
-                  </span>
-                {{/if}}
+
+                  {{#if (eq relationshipStatus.status 'request_sent')}}
+                    <button class="btn btn-secondary friendship-btn" data-action="cancel" data-friendship-id="{{relationshipStatus.friendshipId}}">
+                      <i class="bi bi-clock me-2"></i>Solicitud Enviada
+                    </button>
+                  {{/if}}
+
+                  {{#if (eq relationshipStatus.status 'request_received')}}
+                    <div class="btn-group">
+                      <button class="btn btn-success friendship-btn" data-action="accept" data-friendship-id="{{relationshipStatus.friendshipId}}">
+                        <i class="bi bi-check-lg me-2"></i>Aceptar
+                      </button>
+                      <button class="btn btn-outline-danger friendship-btn" data-action="reject" data-friendship-id="{{relationshipStatus.friendshipId}}">
+                        <i class="bi bi-x-lg"></i>
+                      </button>
+                    </div>
+                  {{/if}}
+
+                  {{#if (eq relationshipStatus.status 'friends')}}
+                    <div class="dropdown">
+                      <button class="btn btn-success dropdown-toggle" data-bs-toggle="dropdown">
+                        <i class="bi bi-people-fill me-2"></i>Amigos
+                      </button>
+                      <ul class="dropdown-menu dropdown-menu-end dropdown-menu-dark">
+                        <li>
+                          <button class="dropdown-item friendship-btn" data-action="remove" data-friend-id="{{profile.id}}">
+                            <i class="bi bi-person-dash me-2"></i>Eliminar amigo
+                          </button>
+                        </li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li>
+                          <button class="dropdown-item text-danger friendship-btn" data-action="block" data-target-id="{{profile.id}}">
+                            <i class="bi bi-slash-circle me-2"></i>Bloquear
+                          </button>
+                        </li>
+                      </ul>
+                    </div>
+                  {{/if}}
+
+                  {{#if (eq relationshipStatus.status 'blocked_by_you')}}
+                    <button class="btn btn-outline-secondary friendship-btn" data-action="unblock" data-target-id="{{profile.id}}">
+                      <i class="bi bi-slash-circle me-2"></i>Desbloquear
+                    </button>
+                  {{/if}}
+
+                  {{#if (eq relationshipStatus.status 'blocked_by_them')}}
+                    <button class="btn btn-secondary" disabled>
+                      <i class="bi bi-slash-circle me-2"></i>No disponible
+                    </button>
+                  {{/if}}
+                </div>
               {{/if}}
             </div>
           </div>
@@ -87,7 +135,7 @@
           {{#each shelves}}
           <div class="col-md-6">
             <a href="/shelf/{{id}}" class="text-decoration-none">
-              <div class="card bg-dark border-secondary h-100 shelf-card-horizontal">
+              <div class="card h-100 shelf-card-horizontal">
                 <!-- Preview horizontal de thumbnails (hasta 8) -->
                 <div class="shelf-preview-horizontal">
                   {{#if previewImages.length}}
@@ -95,13 +143,7 @@
                       {{#each previewImages}}
                         <div class="shelf-preview-thumb" style="background-image: url('{{this}}')"></div>
                       {{/each}}
-                      {{#unless (gte previewImages.length 8)}}
-                        {{#times (subtract 8 previewImages.length)}}
-                          <div class="shelf-preview-thumb-empty">
-                            <i class="bi {{../../categoryInfo.icon}}"></i>
-                          </div>
-                        {{/times}}
-                      {{/unless}}
+
                     </div>
                   {{else}}
                     <div class="shelf-preview-horizontal-empty">
@@ -115,7 +157,7 @@
                   </span>
 
                   {{#unless isPublic}}
-                    <span class="shelf-private-badge badge bg-dark">
+                    <span class="shelf-private-badge badge bg-secondary">
                       <i class="bi bi-lock"></i>
                     </span>
                   {{/unless}}
@@ -138,7 +180,7 @@
         </div>
         {{else}}
         <!-- Estado vacio -->
-        <div class="card bg-dark border-secondary">
+        <div class="card">
           <div class="card-body text-center py-5">
             <i class="bi bi-bookshelf fs-1 text-muted"></i>
             <h5 class="mt-3">

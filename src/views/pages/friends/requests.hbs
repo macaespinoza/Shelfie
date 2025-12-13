@@ -1,0 +1,131 @@
+<!-- Solicitudes de amistad -->
+<div class="container py-4">
+  <div class="row">
+    <!-- Sidebar de navegacion -->
+    <div class="col-lg-3 mb-4">
+      <div class="card">
+        <div class="card-body">
+          <h5 class="card-title mb-3">
+            <i class="bi bi-people me-2"></i>Amistades
+          </h5>
+          <nav class="nav flex-column">
+            <a class="nav-link {{#if (eq activeTab 'friends')}}active bg-primary rounded{{/if}}" href="/friends">
+              <i class="bi bi-people-fill me-2"></i>Mis Amigos
+            </a>
+            <a class="nav-link {{#if (eq activeTab 'requests')}}active bg-primary rounded{{/if}}" href="/friends/requests">
+              <i class="bi bi-person-plus me-2"></i>Solicitudes
+              {{#if pendingCount}}
+              <span class="badge bg-danger float-end">{{pendingCount}}</span>
+              {{/if}}
+            </a>
+            <a class="nav-link {{#if (eq activeTab 'blocked')}}active bg-primary rounded{{/if}}" href="/friends/blocked">
+              <i class="bi bi-slash-circle me-2"></i>Bloqueados
+            </a>
+          </nav>
+        </div>
+      </div>
+    </div>
+
+    <!-- Contenido principal -->
+    <div class="col-lg-9">
+      <div class="card">
+        <div class="card-header">
+          <ul class="nav nav-tabs card-header-tabs">
+            <li class="nav-item">
+              <a class="nav-link {{#if (eq requestTab 'received')}}active{{/if}}" href="/friends/requests?tab=received">
+                <i class="bi bi-inbox me-2"></i>Recibidas
+                {{#if (and (eq requestTab 'received') pendingCount)}}
+                <span class="badge bg-danger ms-1">{{pendingCount}}</span>
+                {{/if}}
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link {{#if (eq requestTab 'sent')}}active{{/if}}" href="/friends/requests?tab=sent">
+                <i class="bi bi-send me-2"></i>Enviadas
+              </a>
+            </li>
+          </ul>
+        </div>
+        <div class="card-body">
+          {{#if requests.length}}
+          <div class="list-group list-group-flush">
+            {{#each requests}}
+            <div class="list-group-item bg-transparent border-secondary d-flex align-items-center request-item" data-request-id="{{id}}">
+              <a href="/user/{{user.username}}" class="text-decoration-none">
+                {{#if user.avatar}}
+                  <img src="/uploads/avatars/{{user.avatar}}" alt="{{user.username}}" class="rounded-circle me-3" width="56" height="56">
+                {{else}}
+                  <div class="avatar-placeholder-lg-sm me-3">{{substring user.username 0 1}}</div>
+                {{/if}}
+              </a>
+              <div class="flex-grow-1">
+                <a href="/user/{{user.username}}" class="text-decoration-none">
+                  <h6 class="mb-1 text-white">{{user.username}}</h6>
+                </a>
+                {{#if user.bio}}
+                  <p class="text-muted small mb-1 text-truncate">{{user.bio}}</p>
+                {{/if}}
+                <small class="text-muted">{{timeAgo}}</small>
+              </div>
+              <div class="request-actions">
+                {{#if (eq ../requestTab 'received')}}
+                  <!-- Solicitud recibida: aceptar o rechazar -->
+                  <button class="btn btn-success btn-sm me-2 friendship-btn" data-action="accept" data-friendship-id="{{id}}">
+                    <i class="bi bi-check-lg me-1"></i>Aceptar
+                  </button>
+                  <button class="btn btn-outline-secondary btn-sm friendship-btn" data-action="reject" data-friendship-id="{{id}}">
+                    <i class="bi bi-x-lg"></i>
+                  </button>
+                {{else}}
+                  <!-- Solicitud enviada: cancelar -->
+                  <button class="btn btn-outline-secondary btn-sm friendship-btn" data-action="cancel" data-friendship-id="{{id}}">
+                    <i class="bi bi-x-lg me-1"></i>Cancelar
+                  </button>
+                {{/if}}
+              </div>
+            </div>
+            {{/each}}
+          </div>
+
+          <!-- Paginacion -->
+          {{#if (gt pagination.totalPages 1)}}
+          <nav class="mt-4">
+            <ul class="pagination justify-content-center mb-0">
+              <li class="page-item {{#if (eq pagination.page 1)}}disabled{{/if}}">
+                <a class="page-link" href="?tab={{requestTab}}&page={{subtract pagination.page 1}}">
+                  <i class="bi bi-chevron-left"></i>
+                </a>
+              </li>
+              {{#times pagination.totalPages}}
+                <li class="page-item {{#if (eq (add @index 1) ../pagination.page)}}active{{/if}}">
+                  <a class="page-link" href="?tab={{../requestTab}}&page={{add @index 1}}">{{add @index 1}}</a>
+                </li>
+              {{/times}}
+              <li class="page-item {{#if (eq pagination.page pagination.totalPages)}}disabled{{/if}}">
+                <a class="page-link" href="?tab={{requestTab}}&page={{add pagination.page 1}}">
+                  <i class="bi bi-chevron-right"></i>
+                </a>
+              </li>
+            </ul>
+          </nav>
+          {{/if}}
+
+          {{else}}
+          <!-- Estado vacio -->
+          <div class="text-center py-5">
+            {{#if (eq requestTab 'received')}}
+              <i class="bi bi-inbox fs-1 text-muted"></i>
+              <h5 class="mt-3">No tienes solicitudes pendientes</h5>
+              <p class="text-muted">Cuando alguien te envie una solicitud de amistad, aparecera aqui.</p>
+            {{else}}
+              <i class="bi bi-send fs-1 text-muted"></i>
+              <h5 class="mt-3">No has enviado solicitudes</h5>
+              <p class="text-muted">Busca usuarios y enviales solicitudes para conectar.</p>
+            {{/if}}
+          </div>
+          {{/if}}
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

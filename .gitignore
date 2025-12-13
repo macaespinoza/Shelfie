@@ -27,3 +27,8 @@ Thumbs.db
 # Build
 dist/
 build/
+
+# Documentacion interna
+ESCALABILIDAD.md
+FASE2-COMPLETADA.md
+EJEMPLOS-FASE2.md

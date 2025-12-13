@@ -37,13 +37,17 @@ const isGuest = (req, res, next) => {
 const loadCurrentUser = async (req, res, next) => {
   res.locals.currentUser = null
   res.locals.isAuthenticated = false
+  res.locals.pendingFriendRequests = 0
 
   if (req.session && req.session.userId) {
     try {
-      const { User } = require('../models')
+      const { User, Friendship } = require('../models')
       const user = await User.findByPk(req.session.userId)
 
       if (user) {
+        // Cargar datos del usuario y contador de solicitudes en paralelo
+        const pendingCount = await Friendship.countPendingRequests(user.id)
+
         res.locals.currentUser = {
           id: user.id,
           username: user.username,
@@ -53,6 +57,7 @@ const loadCurrentUser = async (req, res, next) => {
           coverImage: user.getCoverUrl()
         }
         res.locals.isAuthenticated = true
+        res.locals.pendingFriendRequests = pendingCount
         // Tambien disponible en req para los controladores
         req.currentUser = user
       } else {

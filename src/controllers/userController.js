@@ -2,6 +2,8 @@
 const userService = require('../services/userService')
 const shelfService = require('../services/shelfService')
 const postService = require('../services/postService')
+const friendshipService = require('../services/friendshipService')
+const { Friendship } = require('../models')
 const { deleteOldFile } = require('../middlewares/uploadMiddleware')
 
 const userController = {
@@ -47,14 +49,27 @@ const userController = {
 
       const isOwnProfile = viewerId && viewerId === profile.id
 
-      // Obtener repisas del usuario
-      const shelves = await shelfService.getUserShelves(profile.id, viewerId)
+      // Obtener datos en paralelo
+      const [shelves, friendsCount, relationshipStatus, mutualFriends] = await Promise.all([
+        shelfService.getUserShelves(profile.id, viewerId),
+        Friendship.countFriends(profile.id),
+        viewerId && !isOwnProfile
+          ? friendshipService.getRelationshipStatus(viewerId, profile.id)
+          : { status: 'self' },
+        viewerId && !isOwnProfile
+          ? friendshipService.getMutualFriends(viewerId, profile.id, 3)
+          : { mutualFriends: [], count: 0 }
+      ])
 
       res.render('pages/user/profile', {
         title: `${profile.username} - Shelfie`,
         profile,
         isOwnProfile,
-        shelves
+        shelves,
+        friendsCount,
+        relationshipStatus,
+        mutualFriends: mutualFriends.mutualFriends,
+        mutualFriendsCount: mutualFriends.count
       })
     } catch (error) {
       console.error('Error al cargar perfil:', error)

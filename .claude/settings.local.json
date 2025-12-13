@@ -1,0 +1,11 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(psql:*)",
+      "Bash(timeout 5 psql:*)",
+      "Bash(del check-db-schema.js)",
+      "Bash(rm:*)",
+      "Bash(node run-migration.js:*)"
+    ]
+  }
+}

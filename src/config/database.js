@@ -2,10 +2,31 @@
 const { Sequelize } = require('sequelize')
 require('dotenv').config()
 
+// Logger personalizado para mostrar mensajes breves en lugar de SQL completo
+const customLogger = (msg) => {
+  // Silenciar operaciones de sesiones (muy frecuentes y ruidosas)
+  if (msg.includes('"sessions"') || msg.includes('"Session"')) {
+    return
+  }
+
+  // Extraer el tipo de operación y la tabla
+  const match = msg.match(/Executing \(default\): (SELECT|INSERT|UPDATE|DELETE).*?"(\w+)"/)
+  if (match) {
+    const [, operation, table] = match
+    const icons = {
+      SELECT: '📖',
+      INSERT: '✨',
+      UPDATE: '📝',
+      DELETE: '🗑️'
+    }
+    console.log(`${icons[operation] || '🔹'} ${operation} ${table}`)
+  }
+}
+
 // Crear instancia de Sequelize usando la URL de conexion
 const sequelize = new Sequelize(process.env.DATABASE_URL, {
   dialect: 'postgres',
-  logging: process.env.NODE_ENV === 'development' ? console.log : false,
+  logging: process.env.NODE_ENV === 'development' ? customLogger : false,
   define: {
     // Usar snake_case para nombres de columnas en la BD
     underscored: true,

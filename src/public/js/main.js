@@ -11,6 +11,7 @@ document.addEventListener('DOMContentLoaded', function() {
   initPostInteractions()
   initCreatePostForm()
   initLoadMorePosts()
+  initFriendshipActions()
 })
 
 // ========================================
@@ -588,4 +589,185 @@ function escapeHtml(text) {
   const div = document.createElement('div')
   div.textContent = text
   return div.innerHTML
+}
+
+// ========================================
+// Interacciones de Amistad
+// ========================================
+function initFriendshipActions() {
+  // Delegacion de eventos para botones de amistad
+  document.addEventListener('click', async function(e) {
+    const friendshipBtn = e.target.closest('.friendship-btn')
+    if (!friendshipBtn) return
+
+    e.preventDefault()
+
+    const action = friendshipBtn.dataset.action
+    if (!action) return
+
+    // Deshabilitar boton mientras se procesa
+    friendshipBtn.disabled = true
+    const originalContent = friendshipBtn.innerHTML
+    friendshipBtn.innerHTML = '<span class="spinner-border spinner-border-sm"></span>'
+
+    try {
+      let url, method = 'POST'
+
+      switch (action) {
+        case 'add':
+          url = `/friends/request/${friendshipBtn.dataset.userId}`
+          break
+        case 'accept':
+          url = `/friends/accept/${friendshipBtn.dataset.friendshipId}`
+          break
+        case 'reject':
+          url = `/friends/reject/${friendshipBtn.dataset.friendshipId}`
+          break
+        case 'cancel':
+          url = `/friends/cancel/${friendshipBtn.dataset.friendshipId}`
+          break
+        case 'remove':
+          if (!confirm('Eliminar a este amigo?')) {
+            friendshipBtn.disabled = false
+            friendshipBtn.innerHTML = originalContent
+            return
+          }
+          url = `/friends/remove/${friendshipBtn.dataset.friendId}`
+          break
+        case 'block':
+          if (!confirm('Bloquear a este usuario?')) {
+            friendshipBtn.disabled = false
+            friendshipBtn.innerHTML = originalContent
+            return
+          }
+          url = `/friends/block/${friendshipBtn.dataset.targetId}`
+          break
+        case 'unblock':
+          url = `/friends/unblock/${friendshipBtn.dataset.targetId}`
+          break
+        default:
+          return
+      }
+
+      const response = await fetch(url, {
+        method,
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
+        }
+      })
+
+      const data = await response.json()
+
+      if (data.success) {
+        // Actualizar UI segun la accion
+        handleFriendshipSuccess(action, friendshipBtn, data)
+      } else {
+        showAlert(data.error || 'Error al procesar', 'danger')
+        friendshipBtn.disabled = false
+        friendshipBtn.innerHTML = originalContent
+      }
+    } catch (error) {
+      console.error('Error en accion de amistad:', error)
+      showAlert('Error de conexion', 'danger')
+      friendshipBtn.disabled = false
+      friendshipBtn.innerHTML = originalContent
+    }
+  })
+}
+
+// Manejar exito de acciones de amistad
+function handleFriendshipSuccess(action, btn, data) {
+  const container = btn.closest('.friendship-actions') || btn.closest('.request-item') || btn.closest('.friend-card') || btn.closest('.blocked-item')
+
+  switch (action) {
+    case 'add':
+      // Cambiar a estado "solicitud enviada"
+      if (container) {
+        container.innerHTML = `
+          <button class="btn btn-secondary friendship-btn" data-action="cancel" data-friendship-id="${data.friendshipId || ''}">
+            <i class="bi bi-clock me-2"></i>Solicitud Enviada
+          </button>
+        `
+      }
+      showAlert('Solicitud de amistad enviada', 'success')
+      break
+
+    case 'accept':
+      // La solicitud fue aceptada
+      if (container?.classList.contains('request-item')) {
+        container.remove()
+      } else if (container) {
+        container.innerHTML = `
+          <span class="badge bg-success">
+            <i class="bi bi-people-fill me-1"></i>Amigos
+          </span>
+        `
+      }
+      showAlert('Solicitud aceptada', 'success')
+      // Actualizar contador de solicitudes si existe
+      updatePendingBadge(-1)
+      break
+
+    case 'reject':
+    case 'cancel':
+      // Eliminar el elemento de la lista
+      if (container?.classList.contains('request-item')) {
+        container.remove()
+      } else if (container) {
+        container.innerHTML = `
+          <button class="btn btn-primary friendship-btn" data-action="add" data-user-id="${btn.dataset.userId || ''}">
+            <i class="bi bi-person-plus me-2"></i>Agregar Amigo
+          </button>
+        `
+      }
+      showAlert(action === 'reject' ? 'Solicitud rechazada' : 'Solicitud cancelada', 'info')
+      if (action === 'reject') {
+        updatePendingBadge(-1)
+      }
+      break
+
+    case 'remove':
+      // Eliminar la tarjeta de amigo
+      const friendCard = btn.closest('.col-md-6')
+      if (friendCard) {
+        friendCard.remove()
+      } else if (container) {
+        container.innerHTML = `
+          <button class="btn btn-primary friendship-btn" data-action="add" data-user-id="${btn.dataset.friendId}">
+            <i class="bi bi-person-plus me-2"></i>Agregar Amigo
+          </button>
+        `
+      }
+      showAlert('Amigo eliminado', 'info')
+      break
+
+    case 'block':
+      // Recargar pagina para reflejar cambios
+      showAlert('Usuario bloqueado', 'warning')
+      setTimeout(() => window.location.reload(), 1000)
+      break
+
+    case 'unblock':
+      // Eliminar de la lista de bloqueados
+      if (container?.classList.contains('blocked-item')) {
+        container.remove()
+      }
+      showAlert('Usuario desbloqueado', 'success')
+      break
+  }
+}
+
+// Actualizar badge de solicitudes pendientes
+function updatePendingBadge(delta) {
+  const badges = document.querySelectorAll('.nav-link .badge.bg-danger')
+  badges.forEach(badge => {
+    const current = parseInt(badge.textContent) || 0
+    const newCount = current + delta
+    if (newCount <= 0) {
+      badge.remove()
+    } else {
+      badge.textContent = newCount
+    }
+  })
 }

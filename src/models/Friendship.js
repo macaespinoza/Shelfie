@@ -93,13 +93,54 @@ Friendship.isBlocked = async function(blockerId, blockedId) {
 // Obtener el estado de la relacion entre dos usuarios
 Friendship.getRelationStatus = async function(userId1, userId2) {
   const relation = await this.findRelation(userId1, userId2)
-  if (!relation) return 'none'
+  if (!relation) return { status: 'none', isRequester: false, relation: null }
 
   return {
     status: relation.status,
     isRequester: relation.requesterId === userId1,
     relation
   }
+}
+
+// Obtener IDs de amigos de un usuario
+Friendship.getFriendIds = async function(userId) {
+  const friendships = await this.findAll({
+    where: {
+      status: 'accepted',
+      [sequelize.Sequelize.Op.or]: [
+        { requesterId: userId },
+        { addresseeId: userId }
+      ]
+    },
+    attributes: ['requesterId', 'addresseeId']
+  })
+
+  return friendships.map(f =>
+    f.requesterId === userId ? f.addresseeId : f.requesterId
+  )
+}
+
+// Contar amigos de un usuario
+Friendship.countFriends = async function(userId) {
+  return await this.count({
+    where: {
+      status: 'accepted',
+      [sequelize.Sequelize.Op.or]: [
+        { requesterId: userId },
+        { addresseeId: userId }
+      ]
+    }
+  })
+}
+
+// Contar solicitudes pendientes recibidas
+Friendship.countPendingRequests = async function(userId) {
+  return await this.count({
+    where: {
+      addresseeId: userId,
+      status: 'pending'
+    }
+  })
 }
 
 module.exports = Friendship

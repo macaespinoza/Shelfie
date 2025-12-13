@@ -1,5 +1,5 @@
 <!-- Tarjeta de publicacion -->
-<div class="card bg-dark border-secondary mb-3 post-card" data-post-id="{{id}}">
+<div class="card mb-3 post-card" data-post-id="{{id}}">
   <div class="card-body">
     <!-- Header del post -->
     <div class="d-flex justify-content-between align-items-start mb-3">
@@ -45,7 +45,7 @@
     <!-- Contenido compartido: Repisa -->
     {{#if sharedShelf}}
     <a href="/shelf/{{sharedShelf.id}}" class="text-decoration-none">
-      <div class="shared-content shared-shelf rounded border border-secondary p-3 mb-4">
+      <div class="shared-content shared-shelf rounded border p-3 mb-4">
         <!-- Preview horizontal de repisa (6 thumbnails) -->
         <div class="shelf-preview-dashboard mb-3 {{#unless (or (eq sharedShelf.category 'music') (eq sharedShelf.category 'podcasts'))}}portrait{{/unless}}">
           {{#if sharedShelf.previewImages.length}}
@@ -55,13 +55,7 @@
                   <div class="shelf-preview-thumb" style="background-image: url('{{this}}')"></div>
                 {{/if}}
               {{/each}}
-              {{#unless (gte sharedShelf.previewImages.length 6)}}
-                {{#times (subtract 6 sharedShelf.previewImages.length)}}
-                  <div class="shelf-preview-thumb-empty">
-                    <i class="bi {{../../sharedShelf.categoryInfo.icon}}"></i>
-                  </div>
-                {{/times}}
-              {{/unless}}
+
             </div>
           {{else}}
             <div class="shelf-preview-horizontal-empty" style="height: 70px;">
@@ -92,7 +86,7 @@
     <!-- Contenido compartido: Item -->
     {{#if sharedItem}}
     <a href="/shelf/{{sharedItem.shelf.id}}" class="text-decoration-none">
-      <div class="shared-content shared-item rounded border border-secondary p-4 mb-4">
+      <div class="shared-content shared-item rounded border p-4 mb-4">
         <div class="d-flex">
           {{#if sharedItem.imageUrl}}
             <img src="{{sharedItem.imageUrl}}" alt="{{sharedItem.title}}" class="rounded me-4" width="120" height="180" style="object-fit: cover;">
@@ -121,7 +115,7 @@
     {{/if}}
 
     <!-- Acciones del post -->
-    <div class="post-actions d-flex align-items-center border-top border-secondary pt-3">
+    <div class="post-actions d-flex align-items-center border-top pt-3">
       <!-- Like -->
       <button
         class="btn btn-link text-decoration-none p-0 me-4 like-btn {{#if hasLiked}}text-danger{{else}}text-muted{{/if}}"
@@ -146,7 +140,7 @@
 
     <!-- Preview de comentarios -->
     {{#if comments.length}}
-    <div class="post-comments-preview mt-3 pt-3 border-top border-secondary">
+    <div class="post-comments-preview mt-3 pt-3 border-top">
       {{#each comments}}
       <div class="comment-preview d-flex mb-2">
         <a href="/user/{{author.username}}" class="text-decoration-none">
@@ -176,7 +170,7 @@
       <div class="input-group input-group-sm">
         <input
           type="text"
-          class="form-control bg-dark border-secondary"
+          class="form-control"
           name="content"
           placeholder="Escribe un comentario..."
           maxlength="1000"

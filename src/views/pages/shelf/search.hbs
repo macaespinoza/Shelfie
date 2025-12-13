@@ -16,16 +16,16 @@
   </div>
 
   <!-- Barra de busqueda -->
-  <div class="card bg-dark border-secondary mb-4">
+  <div class="card mb-4">
     <div class="card-body">
       <form action="/shelf/{{shelf.id}}/search" method="GET" class="d-flex gap-2">
         <div class="input-group">
-          <span class="input-group-text bg-dark border-secondary">
+          <span class="input-group-text">
             <i class="bi bi-search"></i>
           </span>
           <input
             type="text"
-            class="form-control bg-dark border-secondary"
+            class="form-control"
             name="q"
             value="{{query}}"
             placeholder="Buscar {{shelf.categoryInfo.name}}..."
@@ -52,7 +52,7 @@
   <div class="row g-3">
     {{#each searchResults.results}}
     <div class="col-6 col-md-4 col-lg-3">
-      <div class="card bg-dark border-secondary h-100 search-result-card {{#if ../isPortrait}}portrait{{/if}}">
+      <div class="card h-100 search-result-card {{#if ../isPortrait}}portrait{{/if}}">
         <div class="search-result-image">
           {{#if imageUrl}}
             <img src="{{imageUrl}}" alt="{{title}}" class="card-img-top">
@@ -105,21 +105,21 @@
     <ul class="pagination justify-content-center">
       {{#if (gt currentPage 1)}}
       <li class="page-item">
-        <a class="page-link bg-dark border-secondary" href="/shelf/{{shelf.id}}/search?q={{query}}&page={{subtract currentPage 1}}">
+        <a class="page-link" href="/shelf/{{shelf.id}}/search?q={{query}}&page={{subtract currentPage 1}}">
           <i class="bi bi-chevron-left"></i>
         </a>
       </li>
       {{/if}}
 
       <li class="page-item disabled">
-        <span class="page-link bg-dark border-secondary">
+        <span class="page-link">
           Pagina {{currentPage}} de {{searchResults.totalPages}}
         </span>
       </li>
 
       {{#if (lt currentPage searchResults.totalPages)}}
       <li class="page-item">
-        <a class="page-link bg-dark border-secondary" href="/shelf/{{shelf.id}}/search?q={{query}}&page={{addOne currentPage}}">
+        <a class="page-link" href="/shelf/{{shelf.id}}/search?q={{query}}&page={{addOne currentPage}}">
           <i class="bi bi-chevron-right"></i>
         </a>
       </li>
@@ -145,7 +145,7 @@
   <div class="row g-3">
     {{#each popularContent.results}}
     <div class="col-6 col-md-4 col-lg-3">
-      <div class="card bg-dark border-secondary h-100 search-result-card {{#if ../isPortrait}}portrait{{/if}}">
+      <div class="card h-100 search-result-card {{#if ../isPortrait}}portrait{{/if}}">
         <div class="search-result-image">
           {{#if imageUrl}}
             <img src="{{imageUrl}}" alt="{{title}}" class="card-img-top">
@@ -194,8 +194,8 @@
 <!-- Modal para agregar item con rating -->
 <div class="modal fade" id="addItemModal" tabindex="-1" aria-hidden="true">
   <div class="modal-dialog">
-    <div class="modal-content bg-dark border-secondary">
-      <div class="modal-header border-secondary">
+    <div class="modal-content">
+      <div class="modal-header">
         <h5 class="modal-title">Agregar a la repisa</h5>
         <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
       </div>
@@ -230,7 +230,7 @@
           <div class="mb-3">
             <label for="addReview" class="form-label">Resena (opcional)</label>
             <textarea
-              class="form-control bg-dark border-secondary"
+              class="form-control"
               id="addReview"
               name="review"
               rows="3"
@@ -239,7 +239,7 @@
             ></textarea>
           </div>
         </div>
-        <div class="modal-footer border-secondary">
+        <div class="modal-footer">
           <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
           <button type="submit" class="btn btn-success">
             <i class="bi bi-plus-lg me-2"></i>Agregar a la repisa

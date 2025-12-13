@@ -1,0 +1,97 @@
+<!-- Usuarios bloqueados -->
+<div class="container py-4">
+  <div class="row">
+    <!-- Sidebar de navegacion -->
+    <div class="col-lg-3 mb-4">
+      <div class="card">
+        <div class="card-body">
+          <h5 class="card-title mb-3">
+            <i class="bi bi-people me-2"></i>Amistades
+          </h5>
+          <nav class="nav flex-column">
+            <a class="nav-link {{#if (eq activeTab 'friends')}}active bg-primary rounded{{/if}}" href="/friends">
+              <i class="bi bi-people-fill me-2"></i>Mis Amigos
+            </a>
+            <a class="nav-link {{#if (eq activeTab 'requests')}}active bg-primary rounded{{/if}}" href="/friends/requests">
+              <i class="bi bi-person-plus me-2"></i>Solicitudes
+              {{#if pendingCount}}
+              <span class="badge bg-danger float-end">{{pendingCount}}</span>
+              {{/if}}
+            </a>
+            <a class="nav-link {{#if (eq activeTab 'blocked')}}active bg-primary rounded{{/if}}" href="/friends/blocked">
+              <i class="bi bi-slash-circle me-2"></i>Bloqueados
+            </a>
+          </nav>
+        </div>
+      </div>
+    </div>
+
+    <!-- Contenido principal -->
+    <div class="col-lg-9">
+      <div class="card">
+        <div class="card-header">
+          <h5 class="mb-0">
+            <i class="bi bi-slash-circle me-2"></i>Usuarios Bloqueados
+          </h5>
+        </div>
+        <div class="card-body">
+          {{#if blocked.length}}
+          <div class="alert alert-warning mb-4">
+            <i class="bi bi-info-circle me-2"></i>
+            Los usuarios bloqueados no pueden ver tu perfil, enviarte mensajes ni interactuar contigo.
+          </div>
+
+          <div class="list-group list-group-flush">
+            {{#each blocked}}
+            <div class="list-group-item bg-transparent border-secondary d-flex align-items-center blocked-item" data-user-id="{{user.id}}">
+              {{#if user.avatar}}
+                <img src="/uploads/avatars/{{user.avatar}}" alt="{{user.username}}" class="rounded-circle me-3" width="48" height="48">
+              {{else}}
+                <div class="avatar-placeholder-sm me-3">{{substring user.username 0 1}}</div>
+              {{/if}}
+              <div class="flex-grow-1">
+                <h6 class="mb-0 text-white">{{user.username}}</h6>
+              </div>
+              <button class="btn btn-outline-secondary btn-sm friendship-btn" data-action="unblock" data-target-id="{{user.id}}">
+                <i class="bi bi-unlock me-1"></i>Desbloquear
+              </button>
+            </div>
+            {{/each}}
+          </div>
+
+          <!-- Paginacion -->
+          {{#if (gt pagination.totalPages 1)}}
+          <nav class="mt-4">
+            <ul class="pagination justify-content-center mb-0">
+              <li class="page-item {{#if (eq pagination.page 1)}}disabled{{/if}}">
+                <a class="page-link" href="?page={{subtract pagination.page 1}}">
+                  <i class="bi bi-chevron-left"></i>
+                </a>
+              </li>
+              {{#times pagination.totalPages}}
+                <li class="page-item {{#if (eq (add @index 1) ../pagination.page)}}active{{/if}}">
+                  <a class="page-link" href="?page={{add @index 1}}">{{add @index 1}}</a>
+                </li>
+              {{/times}}
+              <li class="page-item {{#if (eq pagination.page pagination.totalPages)}}disabled{{/if}}">
+                <a class="page-link" href="?page={{add pagination.page 1}}">
+                  <i class="bi bi-chevron-right"></i>
+                </a>
+              </li>
+            </ul>
+          </nav>
+          {{/if}}
+
+          {{else}}
+          <!-- Estado vacio -->
+          <div class="text-center py-5">
+            <i class="bi bi-shield-check fs-1 text-success"></i>
+            <h5 class="mt-3">No tienes usuarios bloqueados</h5>
+            <p class="text-muted">Cuando bloquees a alguien, aparecera aqui.</p>
+          </div>
+          {{/if}}
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

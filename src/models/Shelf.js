@@ -47,7 +47,7 @@ const CATEGORY_INFO = {
   podcasts: {
     name: 'Podcasts',
     icon: 'bi-mic',
-    color: 'secondary',
+    color: 'orange',
     description: 'Podcasts que escuchas'
   }
 }
