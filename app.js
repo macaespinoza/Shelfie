@@ -24,6 +24,11 @@ const routes = require('./src/routes')
 const app = express()
 const PORT = process.env.PORT || 3000
 
+// Confiar en el proxy de Railway para HTTPS y cookies secure
+if (process.env.NODE_ENV === 'production') {
+  app.set('trust proxy', 1)
+}
+
 // ========================================
 // Configuracion de Handlebars
 // ========================================
