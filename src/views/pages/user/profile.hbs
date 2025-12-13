@@ -115,7 +115,55 @@
       </div>
     </div>
 
+    <!-- Seccion de amigos mutuos (solo si hay y no es tu perfil) -->
+    {{#if (and mutualFriendsCount (not isOwnProfile))}}
+    <div class="row mt-4">
+      <div class="col-12">
+        <div class="card mb-4">
+          <div class="card-body">
+            <h6 class="mb-3">
+              <i class="bi bi-person-check me-2 text-info"></i>
+              {{mutualFriendsCount}} {{pluralize mutualFriendsCount "amigo" "amigos"}} en comun
+            </h6>
+            <div class="d-flex flex-wrap gap-2">
+              {{#each mutualFriends}}
+              <a href="/user/{{username}}" class="text-decoration-none">
+                <div class="d-flex align-items-center bg-dark rounded-pill px-3 py-2">
+                  {{#if avatar}}
+                    <img src="/uploads/avatars/{{avatar}}" alt="{{username}}" class="rounded-circle me-2" width="24" height="24">
+                  {{else}}
+                    <div class="avatar-placeholder-xs me-2">{{substring username 0 1}}</div>
+                  {{/if}}
+                  <span class="text-white small">{{username}}</span>
+                </div>
+              </a>
+              {{/each}}
+              {{#if (gt mutualFriendsCount 3)}}
+              <span class="text-muted small align-self-center ms-2">
+                y {{subtract mutualFriendsCount 3}} mas...
+              </span>
+              {{/if}}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    {{/if}}
+
+    <!-- Alerta si el usuario esta bloqueado por ti -->
+    {{#if isBlocked}}
+    <div class="row mt-4">
+      <div class="col-12">
+        <div class="alert alert-secondary d-flex align-items-center">
+          <i class="bi bi-slash-circle me-2"></i>
+          <span>Has bloqueado a este usuario. No puedes ver su contenido.</span>
+        </div>
+      </div>
+    </div>
+    {{/if}}
+
     <!-- Contenido del perfil - Repisas -->
+    {{#unless isBlocked}}
     <div class="row mt-4">
       <div class="col-12">
         <div class="d-flex justify-content-between align-items-center mb-3">
@@ -156,11 +204,22 @@
                     <i class="bi {{categoryInfo.icon}} me-1"></i>{{categoryInfo.name}}
                   </span>
 
-                  {{#unless isPublic}}
+                  <!-- Badge de visibilidad -->
+                  {{#if (eq visibility 'friends')}}
+                    <span class="shelf-private-badge badge bg-primary">
+                      <i class="bi bi-people"></i>
+                    </span>
+                  {{else if (eq visibility 'private')}}
                     <span class="shelf-private-badge badge bg-secondary">
                       <i class="bi bi-lock"></i>
                     </span>
-                  {{/unless}}
+                  {{else}}
+                    {{#unless isPublic}}
+                      <span class="shelf-private-badge badge bg-secondary">
+                        <i class="bi bi-lock"></i>
+                      </span>
+                    {{/unless}}
+                  {{/if}}
                 </div>
 
                 <div class="card-body">
@@ -207,5 +266,6 @@
         {{/if}}
       </div>
     </div>
+    {{/unless}}
   </div>
 </div>

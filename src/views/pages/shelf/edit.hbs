@@ -39,19 +39,52 @@
               >{{shelf.description}}</textarea>
             </div>
 
-            <!-- Privacidad -->
+            <!-- Visibilidad -->
             <div class="mb-4">
-              <div class="form-check form-switch">
-                <input
-                  class="form-check-input"
-                  type="checkbox"
-                  id="isPublic"
-                  name="isPublic"
-                  {{#if shelf.isPublic}}checked{{/if}}
-                >
-                <label class="form-check-label" for="isPublic">
-                  <i class="bi bi-globe me-1"></i>Repisa publica
-                </label>
+              <label class="form-label">Visibilidad</label>
+              <div class="d-flex flex-column gap-2">
+                <div class="form-check">
+                  <input
+                    class="form-check-input"
+                    type="radio"
+                    name="visibility"
+                    id="visibility_public"
+                    value="public"
+                    {{#if (or (eq shelf.visibility 'public') (and shelf.isPublic (not shelf.visibility)))}}checked{{/if}}
+                  >
+                  <label class="form-check-label" for="visibility_public">
+                    <i class="bi bi-globe text-success me-2"></i>Publica
+                    <small class="text-muted d-block ms-4">Visible para todos los usuarios</small>
+                  </label>
+                </div>
+                <div class="form-check">
+                  <input
+                    class="form-check-input"
+                    type="radio"
+                    name="visibility"
+                    id="visibility_friends"
+                    value="friends"
+                    {{#if (eq shelf.visibility 'friends')}}checked{{/if}}
+                  >
+                  <label class="form-check-label" for="visibility_friends">
+                    <i class="bi bi-people text-primary me-2"></i>Solo amigos
+                    <small class="text-muted d-block ms-4">Solo tus amigos pueden verla</small>
+                  </label>
+                </div>
+                <div class="form-check">
+                  <input
+                    class="form-check-input"
+                    type="radio"
+                    name="visibility"
+                    id="visibility_private"
+                    value="private"
+                    {{#if (or (eq shelf.visibility 'private') (and (not shelf.isPublic) (not shelf.visibility)))}}checked{{/if}}
+                  >
+                  <label class="form-check-label" for="visibility_private">
+                    <i class="bi bi-lock text-secondary me-2"></i>Privada
+                    <small class="text-muted d-block ms-4">Solo tu puedes verla</small>
+                  </label>
+                </div>
               </div>
             </div>
 

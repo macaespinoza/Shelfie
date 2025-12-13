@@ -12,6 +12,13 @@ const SHELF_CATEGORIES = {
   PODCASTS: 'podcasts'
 }
 
+// Opciones de visibilidad para las repisas
+const VISIBILITY_OPTIONS = {
+  PUBLIC: 'public',         // Visible para todos
+  FRIENDS_ONLY: 'friends',  // Solo visible para amigos
+  PRIVATE: 'private'        // Solo visible para el dueno
+}
+
 // Informacion de cada categoria
 const CATEGORY_INFO = {
   music: {
@@ -105,6 +112,17 @@ const Shelf = sequelize.define('Shelf', {
     allowNull: false,
     defaultValue: true,
     field: 'is_public'
+  },
+  visibility: {
+    type: DataTypes.ENUM('public', 'friends', 'private'),
+    allowNull: false,
+    defaultValue: 'public',
+    validate: {
+      isIn: {
+        args: [['public', 'friends', 'private']],
+        msg: 'Visibilidad no valida'
+      }
+    }
   }
 }, {
   tableName: 'shelves',
@@ -147,3 +165,4 @@ Shelf.getAllCategoriesInfo = function() {
 module.exports = Shelf
 module.exports.SHELF_CATEGORIES = SHELF_CATEGORIES
 module.exports.CATEGORY_INFO = CATEGORY_INFO
+module.exports.VISIBILITY_OPTIONS = VISIBILITY_OPTIONS

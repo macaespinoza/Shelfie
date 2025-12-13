@@ -5,7 +5,12 @@
       "Bash(timeout 5 psql:*)",
       "Bash(del check-db-schema.js)",
       "Bash(rm:*)",
-      "Bash(node run-migration.js:*)"
+      "Bash(node run-migration.js:*)",
+      "Bash(cd:*)",
+      "Bash(tree:*)",
+      "Bash(cmd /c \"cd /d \"C:UsersAleDesktopBOOTCAMP JAVASCRIPTTRABAJOSPERSONALESShelfie\" && dir /s /b\")",
+      "Bash($env:PGPASSWORD=\"1996\")",
+      "Bash(PGPASSWORD=1996 psql:*)"
     ]
   }
 }

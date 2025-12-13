@@ -49,14 +49,32 @@ const userController = {
 
       const isOwnProfile = viewerId && viewerId === profile.id
 
-      // Obtener datos en paralelo
-      const [shelves, friendsCount, relationshipStatus, mutualFriends] = await Promise.all([
-        shelfService.getUserShelves(profile.id, viewerId),
+      // Verificar si hay bloqueo entre usuarios
+      let relationshipStatus = { status: 'self' }
+      let isBlocked = false
+
+      if (viewerId && !isOwnProfile) {
+        relationshipStatus = await friendshipService.getRelationshipStatus(viewerId, profile.id)
+
+        // Verificar si alguno bloqueo al otro
+        if (relationshipStatus.status === 'blocked_by_them') {
+          // El perfil nos bloqueo - mostrar pagina de perfil no disponible
+          return res.render('pages/user/blocked-profile', {
+            title: 'Perfil no disponible - Shelfie',
+            username: profile.username
+          })
+        }
+
+        if (relationshipStatus.status === 'blocked_by_you') {
+          isBlocked = true
+        }
+      }
+
+      // Obtener datos en paralelo (solo si no esta bloqueado por nosotros)
+      const [shelves, friendsCount, mutualFriends] = await Promise.all([
+        !isBlocked ? shelfService.getUserShelves(profile.id, viewerId) : [],
         Friendship.countFriends(profile.id),
-        viewerId && !isOwnProfile
-          ? friendshipService.getRelationshipStatus(viewerId, profile.id)
-          : { status: 'self' },
-        viewerId && !isOwnProfile
+        viewerId && !isOwnProfile && !isBlocked
           ? friendshipService.getMutualFriends(viewerId, profile.id, 3)
           : { mutualFriends: [], count: 0 }
       ])
@@ -69,7 +87,8 @@ const userController = {
         friendsCount,
         relationshipStatus,
         mutualFriends: mutualFriends.mutualFriends,
-        mutualFriendsCount: mutualFriends.count
+        mutualFriendsCount: mutualFriends.count,
+        isBlocked
       })
     } catch (error) {
       console.error('Error al cargar perfil:', error)

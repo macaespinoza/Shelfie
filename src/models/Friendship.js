@@ -143,4 +143,53 @@ Friendship.countPendingRequests = async function(userId) {
   })
 }
 
+// Obtener IDs de usuarios bloqueados por un usuario
+Friendship.getBlockedByUserIds = async function(userId) {
+  const blocks = await this.findAll({
+    where: {
+      requesterId: userId,
+      status: 'blocked'
+    },
+    attributes: ['addresseeId']
+  })
+  return blocks.map(b => b.addresseeId)
+}
+
+// Obtener IDs de usuarios que han bloqueado a un usuario
+Friendship.getBlockedUserIds = async function(userId) {
+  const blocks = await this.findAll({
+    where: {
+      addresseeId: userId,
+      status: 'blocked'
+    },
+    attributes: ['requesterId']
+  })
+  return blocks.map(b => b.requesterId)
+}
+
+// Obtener todos los IDs de usuarios relacionados con bloqueos (ambas direcciones)
+Friendship.getAllBlockedIds = async function(userId) {
+  const blocks = await this.findAll({
+    where: {
+      status: 'blocked',
+      [sequelize.Sequelize.Op.or]: [
+        { requesterId: userId },
+        { addresseeId: userId }
+      ]
+    },
+    attributes: ['requesterId', 'addresseeId']
+  })
+
+  const blockedIds = new Set()
+  blocks.forEach(b => {
+    if (b.requesterId === userId) {
+      blockedIds.add(b.addresseeId)
+    } else {
+      blockedIds.add(b.requesterId)
+    }
+  })
+
+  return Array.from(blockedIds)
+}
+
 module.exports = Friendship

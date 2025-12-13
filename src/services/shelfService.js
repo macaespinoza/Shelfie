@@ -1,5 +1,5 @@
 // Servicio de Repisas - Logica de negocio para repisas e items
-const { Shelf, ShelfItem, User, SHELF_CATEGORIES, CATEGORY_INFO } = require('../models')
+const { Shelf, ShelfItem, User, Friendship, SHELF_CATEGORIES, CATEGORY_INFO, VISIBILITY_OPTIONS } = require('../models')
 const { Op } = require('sequelize')
 
 // Importar servicios de APIs
@@ -26,12 +26,17 @@ const shelfService = {
   // Crear una nueva repisa
   async createShelf(userId, shelfData) {
     try {
+      // Determinar visibilidad (nuevo campo) y isPublic (retrocompatibilidad)
+      const visibility = shelfData.visibility || 'public'
+      const isPublic = visibility === 'public'
+
       const shelf = await Shelf.create({
         userId,
         category: shelfData.category,
         name: shelfData.name,
         description: shelfData.description || null,
-        isPublic: shelfData.isPublic !== false
+        isPublic,
+        visibility
       })
 
       return { success: true, shelf }
@@ -62,13 +67,22 @@ const shelfService = {
     return shelf
   },
 
-  // Obtener todas las repisas de un usuario
+  // Obtener todas las repisas de un usuario (respetando visibilidad y amistad)
   async getUserShelves(userId, viewerId = null) {
     const where = { userId }
 
-    // Si el viewer no es el dueno, solo mostrar repisas publicas
+    // Si el viewer no es el dueno, filtrar por visibilidad
     if (viewerId !== userId) {
-      where.isPublic = true
+      // Verificar si son amigos
+      const areFriends = viewerId ? await Friendship.areFriends(viewerId, userId) : false
+
+      if (areFriends) {
+        // Amigos pueden ver repisas publicas y de amigos
+        where.visibility = { [Op.in]: ['public', 'friends'] }
+      } else {
+        // No amigos solo pueden ver repisas publicas
+        where.visibility = 'public'
+      }
     }
 
     const shelves = await Shelf.findAll({
@@ -123,7 +137,7 @@ const shelfService = {
         return { success: false, errors: ['Repisa no encontrada'] }
       }
 
-      const allowedFields = ['name', 'description', 'isPublic']
+      const allowedFields = ['name', 'description', 'visibility']
       const updates = {}
 
       allowedFields.forEach(field => {
@@ -131,6 +145,11 @@ const shelfService = {
           updates[field] = updateData[field]
         }
       })
+
+      // Actualizar isPublic basado en visibility para retrocompatibilidad
+      if (updates.visibility) {
+        updates.isPublic = updates.visibility === 'public'
+      }
 
       await shelf.update(updates)
       return { success: true, shelf }
@@ -339,15 +358,34 @@ const shelfService = {
     return CATEGORY_INFO[category] || null
   },
 
-  // Verificar si el usuario puede ver una repisa
+  // Verificar si el usuario puede ver una repisa (considerando visibilidad y amistad)
   async canViewShelf(shelfId, viewerId) {
     const shelf = await Shelf.findByPk(shelfId)
 
     if (!shelf) return false
-    if (shelf.isPublic) return true
+
+    // El dueno siempre puede ver sus repisas
     if (shelf.userId === viewerId) return true
 
-    return false
+    // Verificar segun visibilidad
+    const visibility = shelf.visibility || (shelf.isPublic ? 'public' : 'private')
+
+    switch (visibility) {
+      case 'public':
+        return true
+
+      case 'friends':
+        // Solo amigos pueden ver
+        if (!viewerId) return false
+        return await Friendship.areFriends(viewerId, shelf.userId)
+
+      case 'private':
+        // Solo el dueno puede ver
+        return false
+
+      default:
+        return shelf.isPublic
+    }
   },
 
   // Obtener estadisticas de repisas de un usuario

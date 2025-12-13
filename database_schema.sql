@@ -10,6 +10,7 @@ CREATE TYPE api_source AS ENUM ('tmdb', 'spotify', 'openlibrary', 'rawg', 'manua
 CREATE TYPE post_type AS ENUM ('text', 'shelf_share', 'item_share');
 CREATE TYPE friendship_status AS ENUM ('pending', 'accepted', 'blocked');
 CREATE TYPE notification_type AS ENUM ('like', 'comment', 'friend_request', 'friend_accepted', 'shelf_share', 'item_share', 'mention');
+CREATE TYPE shelf_visibility AS ENUM ('public', 'friends', 'private');
 
 -- ============================================
 -- Tabla: users
@@ -56,6 +57,7 @@ CREATE TABLE IF NOT EXISTS shelves (
     name VARCHAR(100) NOT NULL,
     description TEXT,
     is_public BOOLEAN NOT NULL DEFAULT TRUE,
+    visibility shelf_visibility NOT NULL DEFAULT 'public',
     items_count INTEGER DEFAULT 0 NOT NULL,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
@@ -68,6 +70,7 @@ CREATE INDEX IF NOT EXISTS idx_shelves_user_public ON shelves(user_id, is_public
 -- Índices de Fase 2
 CREATE INDEX IF NOT EXISTS idx_shelves_items_count ON shelves(items_count DESC);
 CREATE INDEX IF NOT EXISTS idx_shelves_public_category ON shelves(is_public, category) WHERE is_public = TRUE;
+CREATE INDEX IF NOT EXISTS idx_shelves_visibility ON shelves(user_id, visibility);
 
 -- Full-text search para shelves (Fase 2)
 ALTER TABLE shelves ADD COLUMN IF NOT EXISTS search_vector tsvector
@@ -200,6 +203,9 @@ CREATE TABLE IF NOT EXISTS friendships (
 -- Índices para amistades
 CREATE INDEX IF NOT EXISTS idx_friendships_requester_status ON friendships(requester_id, status);
 CREATE INDEX IF NOT EXISTS idx_friendships_addressee_status ON friendships(addressee_id, status);
+
+-- Índices de Fase 4 (Sistema de visibilidad)
+CREATE INDEX IF NOT EXISTS idx_friendships_status_users ON friendships(status, requester_id, addressee_id);
 
 -- ============================================
 -- Tabla: notifications (Fase 2)
@@ -370,15 +376,24 @@ COMMENT ON TABLE notifications IS 'Notificaciones para usuarios sobre actividad 
 COMMENT ON TABLE sessions IS 'Sesiones de usuario para autenticación';
 
 -- ============================================
--- NOTAS DE OPTIMIZACIÓN (Fase 2)
+-- NOTAS DE OPTIMIZACIÓN
 -- ============================================
--- Este schema incluye optimizaciones de Fase 2:
+-- Este schema incluye optimizaciones de Fase 2 y Fase 4:
+--
+-- Fase 2 (Escalabilidad):
 -- ✓ Contadores denormalizados (likes_count, comments_count, friends_count, etc.)
 -- ✓ Full-text search con columnas search_vector en users, shelves y shelf_items
 -- ✓ Índices compuestos para queries frecuentes
 -- ✓ Triggers automáticos para mantener contadores
 -- ✓ Sistema de notificaciones
 -- ✓ Índices GIN para búsqueda en JSONB y tsvector
+--
+-- Fase 4 (Sistema de Visibilidad):
+-- ✓ Tipo ENUM shelf_visibility para control de privacidad de repisas
+-- ✓ Campo visibility en tabla shelves (public, friends, private)
+-- ✓ Índice idx_shelves_visibility para queries optimizadas por visibilidad
+-- ✓ Índice idx_friendships_status_users para consultas de amistades frecuentes
+-- ✓ Mantiene compatibilidad con campo is_public existente
 --
 -- Capacidad: 10K-50K usuarios activos
 -- Rendimiento: Queries 3-10x más rápidas vs schema básico

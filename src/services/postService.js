@@ -1,5 +1,5 @@
 // Servicio de Posts - Logica de negocio para publicaciones
-const { Post, Comment, Like, User, Shelf, ShelfItem, POST_TYPES } = require('../models')
+const { Post, Comment, Like, User, Shelf, ShelfItem, Friendship, POST_TYPES } = require('../models')
 const { Op } = require('sequelize')
 
 const postService = {
@@ -216,11 +216,23 @@ const postService = {
   // FEED
   // ========================================
 
-  // Obtener feed publico (todos los posts)
+  // Obtener feed publico (todos los posts, excluyendo usuarios bloqueados)
   async getPublicFeed(page = 1, limit = 10, viewerId = null) {
     const offset = (page - 1) * limit
 
+    // Obtener IDs de usuarios bloqueados (ambas direcciones)
+    let blockedUserIds = []
+    if (viewerId) {
+      blockedUserIds = await Friendship.getAllBlockedIds(viewerId)
+    }
+
+    // Construir condicion where para excluir posts de usuarios bloqueados
+    const whereCondition = blockedUserIds.length > 0
+      ? { userId: { [Op.notIn]: blockedUserIds } }
+      : {}
+
     const { count, rows } = await Post.findAndCountAll({
+      where: whereCondition,
       include: [
         {
           model: User,
@@ -252,6 +264,70 @@ const postService = {
 
     const posts = await Promise.all(
       rows.map(post => this.formatPost(post, viewerId))
+    )
+
+    return {
+      posts,
+      page,
+      totalPosts: count,
+      totalPages: Math.ceil(count / limit),
+      hasMore: offset + rows.length < count
+    }
+  },
+
+  // Obtener feed de amigos (solo posts de amigos)
+  async getFriendsFeed(userId, page = 1, limit = 10) {
+    const offset = (page - 1) * limit
+
+    // Obtener IDs de amigos
+    const friendIds = await Friendship.getFriendIds(userId)
+
+    // Si no tiene amigos, retornar vacio
+    if (friendIds.length === 0) {
+      return {
+        posts: [],
+        page,
+        totalPosts: 0,
+        totalPages: 0,
+        hasMore: false
+      }
+    }
+
+    const { count, rows } = await Post.findAndCountAll({
+      where: {
+        userId: { [Op.in]: friendIds }
+      },
+      include: [
+        {
+          model: User,
+          as: 'author',
+          attributes: ['id', 'username', 'avatar']
+        },
+        {
+          model: Comment,
+          as: 'comments',
+          include: [{
+            model: User,
+            as: 'author',
+            attributes: ['id', 'username', 'avatar']
+          }],
+          limit: 3,
+          order: [['created_at', 'DESC']]
+        },
+        {
+          model: Like,
+          as: 'likes',
+          attributes: ['userId']
+        }
+      ],
+      order: [['created_at', 'DESC']],
+      limit,
+      offset,
+      distinct: true
+    })
+
+    const posts = await Promise.all(
+      rows.map(post => this.formatPost(post, userId))
     )
 
     return {
