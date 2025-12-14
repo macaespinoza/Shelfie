@@ -10,7 +10,14 @@
       "Bash(tree:*)",
       "Bash(cmd /c \"cd /d \"C:UsersAleDesktopBOOTCAMP JAVASCRIPTTRABAJOSPERSONALESShelfie\" && dir /s /b\")",
       "Bash($env:PGPASSWORD=\"1996\")",
-      "Bash(PGPASSWORD=1996 psql:*)"
+      "Bash(PGPASSWORD=1996 psql:*)",
+      "Bash(npm install:*)",
+      "Bash(npm start)",
+      "Bash(timeout:*)",
+      "Bash(netstat:*)",
+      "Bash(findstr:*)",
+      "Bash(taskkill:*)",
+      "Bash(npm test:*)"
     ]
   }
 }

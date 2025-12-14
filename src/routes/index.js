@@ -6,6 +6,7 @@ const userRoutes = require('./userRoutes')
 const shelfRoutes = require('./shelfRoutes')
 const postRoutes = require('./postRoutes')
 const friendshipRoutes = require('./friendshipRoutes')
+const chatRoutes = require('./chatRoutes')
 const userController = require('../controllers/userController')
 const { isAuthenticated } = require('../middlewares/authMiddleware')
 
@@ -39,6 +40,9 @@ router.use('/post', postRoutes)
 
 // Rutas de amistades
 router.use('/friends', friendshipRoutes)
+
+// Rutas de chat
+router.use('/chat', chatRoutes)
 
 // Manejo de errores 404
 router.use((req, res) => {

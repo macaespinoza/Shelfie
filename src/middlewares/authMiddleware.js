@@ -88,6 +88,7 @@ const handleFlashMessages = (req, res, next) => {
 
 module.exports = {
   isAuthenticated,
+  requireAuth: isAuthenticated, // Alias para claridad semantica
   isGuest,
   loadCurrentUser,
   handleFlashMessages

@@ -11,11 +11,12 @@ const path = require('path')
 const { engine } = require('express-handlebars')
 
 // Importar configuraciones
-const { testConnection, syncDatabase } = require('./src/config/database')
+const { testConnection, syncDatabase, sequelize } = require('./src/config/database')
 const { sessionMiddleware, initSessionStore } = require('./src/config/session')
 
 // Importar middlewares
 const { loadCurrentUser, handleFlashMessages } = require('./src/middlewares/authMiddleware')
+const { errorHandler, notFoundHandler } = require('./src/middlewares/errorHandler')
 
 // Importar rutas
 const routes = require('./src/routes')
@@ -32,6 +33,10 @@ app.engine('hbs', engine({
   defaultLayout: 'main',
   layoutsDir: path.join(__dirname, 'src/views/layouts'),
   partialsDir: path.join(__dirname, 'src/views/partials'),
+  runtimeOptions: {
+    allowProtoPropertiesByDefault: true,
+    allowProtoMethodsByDefault: true,
+  },
   // Helpers personalizados
   helpers: {
     // Comparar valores
@@ -138,23 +143,12 @@ app.use('/', routes)
 // ========================================
 // Manejo de errores
 // ========================================
-app.use((err, req, res, next) => {
-  console.error('Error:', err)
 
-  // Si es una peticion AJAX, devolver JSON
-  if (req.xhr || req.headers.accept?.includes('application/json')) {
-    return res.status(500).json({
-      success: false,
-      message: 'Error interno del servidor'
-    })
-  }
+// Capturar rutas no encontradas (404)
+app.use(notFoundHandler)
 
-  // Renderizar pagina de error
-  res.status(500).render('pages/home', {
-    title: 'Error - Shelfie',
-    error500: true
-  })
-})
+// Manejador global de errores
+app.use(errorHandler)
 
 // ========================================
 // Iniciar servidor
@@ -171,14 +165,48 @@ async function startServer() {
     const force = process.env.NODE_ENV === 'development' && process.argv.includes('--force')
     await syncDatabase(force)
 
+    // Crear servidor HTTP (necesario para Socket.io)
+    const http = require('http')
+    const httpServer = http.createServer(app)
+
+    // Inicializar Socket.io
+    const { initializeSocket } = require('./src/config/socket')
+    initializeSocket(httpServer, sessionMiddleware)
+
     // Iniciar servidor HTTP
-    app.listen(PORT, () => {
+    const server = httpServer.listen(PORT, () => {
       console.log('========================================')
       console.log(`  SHELFIE - Servidor iniciado`)
       console.log(`  URL: http://localhost:${PORT}`)
       console.log(`  Entorno: ${process.env.NODE_ENV || 'development'}`)
+      console.log(`  Socket.io: Activado`)
       console.log('========================================')
     })
+
+    // Manejo de cierre graceful para liberar el puerto
+    const gracefulShutdown = () => {
+      console.log('\nRecibida señal de terminación, cerrando servidor...')
+      server.close(() => {
+        console.log('Servidor HTTP cerrado.')
+        sequelize.close().then(() => {
+          console.log('Conexión a base de datos cerrada.')
+          process.exit(0)
+        }).catch((err) => {
+          console.error('Error al cerrar base de datos:', err)
+          process.exit(1)
+        })
+      })
+
+      // Forzar cierre si falla el graceful shutdown
+      setTimeout(() => {
+        console.error('No se pudo cerrar las conexiones a tiempo, forzando cierre')
+        process.exit(1)
+      }, 10000)
+    }
+
+    // Escuchar señales de terminación
+    process.on('SIGTERM', gracefulShutdown)
+    process.on('SIGINT', gracefulShutdown)
   } catch (error) {
     console.error('Error al iniciar el servidor:', error)
     process.exit(1)

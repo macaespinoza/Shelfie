@@ -381,6 +381,21 @@ CREATE INDEX IF NOT EXISTS idx_api_cache_expires ON api_cache(expires_at);
 CREATE INDEX IF NOT EXISTS idx_api_cache_source ON api_cache(api_source);
 
 -- ============================================
+-- Tabla: chat_messages (Chat en tiempo real)
+-- ============================================
+CREATE TABLE IF NOT EXISTS chat_messages (
+    id SERIAL PRIMARY KEY,
+    channel VARCHAR(20) NOT NULL,  -- general, music, movies, etc.
+    user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
+    content TEXT NOT NULL CHECK (length(content) BETWEEN 1 AND 500),
+    created_at TIMESTAMP DEFAULT NOW()
+);
+
+-- Índices para optimización
+CREATE INDEX IF NOT EXISTS idx_chat_channel_date ON chat_messages(channel, created_at);
+CREATE INDEX IF NOT EXISTS idx_chat_user ON chat_messages(user_id);
+
+-- ============================================
 -- Comentarios sobre las tablas (documentación)
 -- ============================================
 COMMENT ON TABLE users IS 'Usuarios registrados en la plataforma';
@@ -393,6 +408,7 @@ COMMENT ON TABLE friendships IS 'Relaciones de amistad entre usuarios';
 COMMENT ON TABLE notifications IS 'Notificaciones para usuarios sobre actividad social';
 COMMENT ON TABLE sessions IS 'Sesiones de usuario para autenticación';
 COMMENT ON TABLE api_cache IS 'Caché persistente para respuestas de APIs externas (TMDB, Spotify, etc.)';
+COMMENT ON TABLE chat_messages IS 'Mensajes de chat por canal';
 
 -- ============================================
 -- NOTAS DE OPTIMIZACIÓN

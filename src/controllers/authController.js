@@ -1,5 +1,7 @@
 // Controlador de autenticacion
 const userService = require('../services/userService')
+const { validateRegistration, validateLogin, sanitizeString } = require('../utils/validators')
+const { ValidationError } = require('../middlewares/errorHandler')
 
 const authController = {
   // Mostrar pagina de login
@@ -21,27 +23,18 @@ const authController = {
   // Procesar registro de usuario
   async register(req, res) {
     try {
-      const { username, email, password, confirmPassword } = req.body
+      // Sanitizar datos de entrada
+      const username = sanitizeString(req.body.username)
+      const email = sanitizeString(req.body.email)
+      const { password, confirmPassword } = req.body
 
-      // Validaciones basicas
-      const errors = []
+      // Validar datos con el validador centralizado
+      const validation = validateRegistration({ username, email, password, confirmPassword })
 
-      if (!username || !email || !password || !confirmPassword) {
-        errors.push('Todos los campos son requeridos')
-      }
-
-      if (password !== confirmPassword) {
-        errors.push('Las contrasenas no coinciden')
-      }
-
-      if (password && password.length < 6) {
-        errors.push('La contrasena debe tener al menos 6 caracteres')
-      }
-
-      if (errors.length > 0) {
+      if (!validation.valid) {
         return res.render('pages/auth/register', {
           title: 'Crear Cuenta - Shelfie',
-          errors,
+          errors: validation.errors,
           formData: { username, email }
         })
       }
@@ -78,13 +71,17 @@ const authController = {
   // Procesar inicio de sesion
   async login(req, res) {
     try {
-      const { identifier, password } = req.body
+      // Sanitizar datos de entrada
+      const identifier = sanitizeString(req.body.identifier)
+      const { password } = req.body
 
-      // Validaciones basicas
-      if (!identifier || !password) {
+      // Validar datos con el validador centralizado
+      const validation = validateLogin({ identifier, password })
+
+      if (!validation.valid) {
         return res.render('pages/auth/login', {
           title: 'Iniciar Sesion - Shelfie',
-          errors: ['Por favor ingresa tu usuario/email y contrasena'],
+          errors: validation.errors,
           formData: { identifier }
         })
       }

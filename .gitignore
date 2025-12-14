@@ -1,9 +1,31 @@
+# ========================================
+# SHELFIE - GitIgnore
+# ========================================
+
 # Dependencias
 node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+package-lock.json
 
 # Variables de entorno
 .env
+.env.local
+.env.development
+.env.production
+.env.test
 api_keys.txt
+
+# Archivos de sesión y caché
+sessions/
+.cache/
+
+# Archivos de test y cobertura
+coverage/
+*.coverage
+.nyc_output/
+test-results/
 
 # Archivos subidos por usuarios
 src/public/uploads/avatars/*
@@ -16,17 +38,50 @@ logs/
 *.log
 npm-debug.log*
 
+# Archivos temporales
+tmp/
+temp/
+*.tmp
+*.swp
+*.swo
+*~
+
 # Sistema operativo
 .DS_Store
 Thumbs.db
+desktop.ini
 
 # IDE
 .vscode/
 .idea/
+*.sublime-project
+*.sublime-workspace
+.project
+.classpath
+.settings/
 
 # Build
 dist/
 build/
+out/
+
+# Archivos de base de datos local
+*.sqlite
+*.db
+
+# Configuraciones locales
+.claude/settings.local.json
+
+# Archivos de backup
+*.bak
+*.backup
+*.old
+
+# Certificados SSL
+*.pem
+*.key
+*.crt
+*.cert
 
 # Documentacion interna
 ESCALABILIDAD.md

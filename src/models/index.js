@@ -7,6 +7,7 @@ const ShelfItem = require('./ShelfItem')
 const Post = require('./Post')
 const Comment = require('./Comment')
 const Like = require('./Like')
+const ChatMessage = require('./ChatMessage')
 
 // ========================================
 // Relaciones de Usuario y Amistad
@@ -148,6 +149,23 @@ Like.belongsTo(User, {
 })
 
 // ========================================
+// Relaciones de Chat
+// ========================================
+
+// Un usuario puede enviar muchos mensajes de chat
+User.hasMany(ChatMessage, {
+  foreignKey: 'userId',
+  as: 'chatMessages',
+  onDelete: 'CASCADE'
+})
+
+// Cada mensaje de chat pertenece a un usuario
+ChatMessage.belongsTo(User, {
+  foreignKey: 'userId',
+  as: 'author'
+})
+
+// ========================================
 // Exportar modelos y constantes
 // ========================================
 module.exports = {
@@ -159,6 +177,7 @@ module.exports = {
   Post,
   Comment,
   Like,
+  ChatMessage,
   // Constantes utiles
   SHELF_CATEGORIES: Shelf.SHELF_CATEGORIES,
   CATEGORY_INFO: Shelf.CATEGORY_INFO,

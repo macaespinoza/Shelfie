@@ -1,0 +1,36 @@
+<div class="container py-5">
+  <div class="row justify-content-center">
+    <div class="col-md-8 col-lg-6">
+      <div class="card text-center">
+        <div class="card-body p-5">
+          {{#if error.statusCode}}
+            <h1 class="display-1 mb-3" style="background: var(--gradient-text); -webkit-background-clip: text; background-clip: text; color: transparent;">
+              {{error.statusCode}}
+            </h1>
+          {{/if}}
+
+          <h2 class="h4 mb-3">{{error.message}}</h2>
+
+          {{#if error.errors}}
+            <div class="alert alert-danger text-start mb-4">
+              <ul class="mb-0">
+                {{#each error.errors}}
+                  <li>{{this}}</li>
+                {{/each}}
+              </ul>
+            </div>
+          {{/if}}
+
+          <div class="d-flex gap-2 justify-content-center">
+            <a href="javascript:history.back()" class="btn btn-secondary">
+              ← Volver
+            </a>
+            <a href="/dashboard" class="btn btn-primary">
+              Ir al Dashboard
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
