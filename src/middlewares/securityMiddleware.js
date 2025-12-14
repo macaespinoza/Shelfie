@@ -86,32 +86,10 @@ const createContentLimiter = rateLimit({
 /**
  * Configuración de CORS
  * Controla qué dominios pueden acceder a la API
+ * TEMPORAL: CORS deshabilitado completamente para desarrollo local
  */
 const corsOptions = {
-  origin: function (origin, callback) {
-    // En desarrollo, permitir todas las origenes
-    if (process.env.NODE_ENV !== 'production') {
-      callback(null, true)
-      return
-    }
-
-    // En producción, solo permitir el dominio configurado
-    const allowedOrigins = process.env.ALLOWED_ORIGINS 
-      ? process.env.ALLOWED_ORIGINS.split(',')
-      : []
-
-    // Permitir requests sin origin (apps móviles, Postman, etc)
-    if (!origin) {
-      callback(null, true)
-      return
-    }
-
-    if (allowedOrigins.indexOf(origin) !== -1 || allowedOrigins.includes('*')) {
-      callback(null, true)
-    } else {
-      callback(new Error('No permitido por CORS'))
-    }
-  },
+  origin: true, // PERMITIR TODOS LOS ORÍGENES (temporal para desarrollo)
   credentials: true, // Permitir cookies
   optionsSuccessStatus: 200
 }
