@@ -45,12 +45,12 @@
   --gradient-text: linear-gradient(90deg, var(--tropical-mint), var(--bright-lavender));
 
   /* Category Colors */
-  --color-videojuegos: #6fd3eb;
-  --color-peliculas: #ff8d8d;
-  --color-musica: #81e773;
-  --color-libros: #f9dc49;
-  --color-podcasts: #fa8648;
-  --color-series: #6d7fe4;
+  --color-musica: #00cec9;       /* Cyan/Teal for Music */
+  --color-peliculas: #ff7675;    /* Red/Pink for Movies */
+  --color-libros: #fdcb6e;       /* Amber/Yellow for Books */
+  --color-videojuegos: #00b894;  /* Green for Games */
+  --color-series: #6c5ce7;       /* Purple for Series */
+  --color-podcasts: #e17055;     /* Orange for Podcasts */
 
   /* Bootstrap Overrides */
   --bs-body-bg: var(--bg-dark);
@@ -314,90 +314,90 @@ a:hover {
 
 /* Music Buttons */
 .btn-music, .btn-outline-music {
-    background: linear-gradient(135deg, #a4f599 0%, var(--color-musica) 100%);
+    background: linear-gradient(135deg, #81ecec 0%, var(--color-musica) 100%);
     color: var(--midnight-violet);
-    box-shadow: 0 4px 15px rgba(129, 231, 115, 0.3);
+    box-shadow: 0 4px 15px rgba(0, 206, 201, 0.3);
     border: 1px solid transparent;
 }
 .btn-music:hover, .btn-outline-music:hover, .btn-check:checked+.btn-outline-music {
-    background: linear-gradient(135deg, var(--color-musica) 0%, #6cd660 100%);
+    background: linear-gradient(135deg, var(--color-musica) 0%, #00b5b5 100%);
     transform: translateY(-2px);
-    box-shadow: 0 8px 25px rgba(129, 231, 115, 0.5);
+    box-shadow: 0 8px 25px rgba(0, 206, 201, 0.5);
     color: var(--midnight-violet);
     border: 1px solid transparent;
 }
 
 /* Movies Buttons */
 .btn-movies, .btn-outline-movies {
-    background: linear-gradient(135deg, #ffadad 0%, var(--color-peliculas) 100%);
+    background: linear-gradient(135deg, #fab1a0 0%, var(--color-peliculas) 100%);
     color: white;
-    box-shadow: 0 4px 15px rgba(255, 141, 141, 0.3);
+    box-shadow: 0 4px 15px rgba(255, 118, 117, 0.3);
     border: 1px solid transparent;
 }
 .btn-movies:hover, .btn-outline-movies:hover, .btn-check:checked+.btn-outline-movies {
-    background: linear-gradient(135deg, var(--color-peliculas) 0%, #ff6b6b 100%);
+    background: linear-gradient(135deg, var(--color-peliculas) 0%, #d63031 100%);
     transform: translateY(-2px);
-    box-shadow: 0 8px 25px rgba(255, 141, 141, 0.5);
+    box-shadow: 0 8px 25px rgba(255, 118, 117, 0.5);
     color: white;
     border: 1px solid transparent;
 }
 
 /* Books Buttons */
 .btn-books, .btn-outline-books {
-    background: linear-gradient(135deg, #ffeb85 0%, var(--color-libros) 100%);
+    background: linear-gradient(135deg, #ffeaa7 0%, var(--color-libros) 100%);
     color: var(--midnight-violet);
-    box-shadow: 0 4px 15px rgba(249, 220, 73, 0.3);
+    box-shadow: 0 4px 15px rgba(253, 203, 110, 0.3);
     border: 1px solid transparent;
 }
 .btn-books:hover, .btn-outline-books:hover, .btn-check:checked+.btn-outline-books {
-    background: linear-gradient(135deg, var(--color-libros) 0%, #e6cb3d 100%);
+    background: linear-gradient(135deg, var(--color-libros) 0%, #e1b12c 100%);
     transform: translateY(-2px);
-    box-shadow: 0 8px 25px rgba(249, 220, 73, 0.5);
+    box-shadow: 0 8px 25px rgba(253, 203, 110, 0.5);
     color: var(--midnight-violet);
     border: 1px solid transparent;
 }
 
 /* Games Buttons */
 .btn-games, .btn-outline-games {
-    background: linear-gradient(135deg, #8fe8fc 0%, var(--color-videojuegos) 100%);
+    background: linear-gradient(135deg, #55efc4 0%, var(--color-videojuegos) 100%);
     color: var(--midnight-violet);
-    box-shadow: 0 4px 15px rgba(111, 211, 235, 0.3);
+    box-shadow: 0 4px 15px rgba(0, 184, 148, 0.3);
     border: 1px solid transparent;
 }
 .btn-games:hover, .btn-outline-games:hover, .btn-check:checked+.btn-outline-games {
-    background: linear-gradient(135deg, var(--color-videojuegos) 0%, #5bbcd4 100%);
+    background: linear-gradient(135deg, var(--color-videojuegos) 0%, #00a884 100%);
     transform: translateY(-2px);
-    box-shadow: 0 8px 25px rgba(111, 211, 235, 0.5);
+    box-shadow: 0 8px 25px rgba(0, 184, 148, 0.5);
     color: var(--midnight-violet);
     border: 1px solid transparent;
 }
 
 /* Series Buttons */
 .btn-series, .btn-outline-series {
-    background: linear-gradient(135deg, #8ea0ff 0%, var(--color-series) 100%);
+    background: linear-gradient(135deg, #a29bfe 0%, var(--color-series) 100%);
     color: white;
-    box-shadow: 0 4px 15px rgba(109, 127, 228, 0.3);
+    box-shadow: 0 4px 15px rgba(108, 92, 231, 0.3);
     border: 1px solid transparent;
 }
 .btn-series:hover, .btn-outline-series:hover, .btn-check:checked+.btn-outline-series {
-    background: linear-gradient(135deg, var(--color-series) 0%, #586ac4 100%);
+    background: linear-gradient(135deg, var(--color-series) 0%, #4834d4 100%);
     transform: translateY(-2px);
-    box-shadow: 0 8px 25px rgba(109, 127, 228, 0.5);
+    box-shadow: 0 8px 25px rgba(108, 92, 231, 0.5);
     color: white;
     border: 1px solid transparent;
 }
 
 /* Podcasts Buttons */
 .btn-podcasts, .btn-outline-podcasts {
-    background: linear-gradient(135deg, #ff9f6b 0%, var(--color-podcasts) 100%);
+    background: linear-gradient(135deg, #ff9f43 0%, var(--color-podcasts) 100%);
     color: white;
-    box-shadow: 0 4px 15px rgba(250, 134, 72, 0.3);
+    box-shadow: 0 4px 15px rgba(225, 112, 85, 0.3);
     border: 1px solid transparent;
 }
 .btn-podcasts:hover, .btn-outline-podcasts:hover, .btn-check:checked+.btn-outline-podcasts {
-    background: linear-gradient(135deg, var(--color-podcasts) 0%, #e0763b 100%);
+    background: linear-gradient(135deg, var(--color-podcasts) 0%, #d35400 100%);
     transform: translateY(-2px);
-    box-shadow: 0 8px 25px rgba(250, 134, 72, 0.5);
+    box-shadow: 0 8px 25px rgba(225, 112, 85, 0.5);
     color: white;
     border: 1px solid transparent;
 }

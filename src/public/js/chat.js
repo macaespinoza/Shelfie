@@ -121,7 +121,7 @@ function initializeSocket() {
 // ========================================
 function displayMessage(message) {
   const messageElement = document.createElement('div')
-  messageElement.className = 'message mb-3'
+  messageElement.className = 'message'
 
   const isOwnMessage = message.userId === userId || message.user_id === userId
   if (isOwnMessage) {
