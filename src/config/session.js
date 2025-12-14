@@ -18,13 +18,21 @@ const sessionConfig = {
   resave: false,
   saveUninitialized: false,
   name: 'shelfie.sid',
+  proxy: process.env.NODE_ENV === 'production', // Confiar en proxy (Railway)
   cookie: {
     secure: process.env.NODE_ENV === 'production', // HTTPS solo en produccion
     httpOnly: true, // Prevenir acceso desde JavaScript del cliente
     maxAge: 24 * 60 * 60 * 1000, // 24 horas
-    sameSite: 'lax' // Proteccion CSRF basica
+    sameSite: process.env.NODE_ENV === 'production' ? 'strict' : 'lax', // Proteccion CSRF estricta en produccion
+    domain: process.env.COOKIE_DOMAIN || undefined // Dominio de la cookie (configurar en produccion)
   }
 }
+
+// Advertencia si SESSION_SECRET no está configurado en producción
+if (process.env.NODE_ENV === 'production' && sessionConfig.secret === 'shelfie_secret_key_cambiar_en_produccion') {
+  console.error('⚠️  ADVERTENCIA CRÍTICA: SESSION_SECRET no está configurado. Define una clave secreta fuerte en producción.')
+}
+
 
 // Funcion para inicializar la tabla de sesiones
 const initSessionStore = async () => {

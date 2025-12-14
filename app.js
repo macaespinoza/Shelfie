@@ -9,10 +9,25 @@ require('dotenv').config()
 const express = require('express')
 const path = require('path')
 const { engine } = require('express-handlebars')
+const compression = require('compression')
+const morgan = require('morgan')
 
 // Importar configuraciones
 const { testConnection, syncDatabase, sequelize } = require('./src/config/database')
 const { sessionMiddleware, initSessionStore } = require('./src/config/session')
+
+// Importar middlewares de seguridad
+const {
+  helmetConfig,
+  generalLimiter,
+  corsConfig,
+  requestId,
+  validateEnvironment,
+  additionalSecurityHeaders
+} = require('./src/middlewares/securityMiddleware')
+
+// Importar logger
+const logger = require('./src/utils/logger')
 
 // Importar middlewares
 const { loadCurrentUser, handleFlashMessages } = require('./src/middlewares/authMiddleware')
@@ -20,10 +35,19 @@ const { errorHandler, notFoundHandler } = require('./src/middlewares/errorHandle
 
 // Importar rutas
 const routes = require('./src/routes')
+const healthCheckRoute = require('./src/routes/healthCheckRoute')
+
+// Validar variables de entorno críticas
+validateEnvironment()
 
 // Crear aplicacion Express
 const app = express()
 const PORT = process.env.PORT || 3000
+
+// Confiar en proxy (necesario para Railway y otros PaaS)
+if (process.env.NODE_ENV === 'production') {
+  app.set('trust proxy', 1)
+}
 
 // ========================================
 // Configuracion de Handlebars
@@ -115,12 +139,42 @@ app.set('views', path.join(__dirname, 'src/views'))
 // Middlewares
 // ========================================
 
+// Seguridad - aplicar PRIMERO
+app.use(helmetConfig)
+app.use(corsConfig)
+app.use(requestId)
+app.use(additionalSecurityHeaders)
+
+// Compresión de respuestas
+app.use(compression({
+  filter: (req, res) => {
+    if (req.headers['x-no-compression']) {
+      return false
+    }
+    return compression.filter(req, res)
+  },
+  threshold: 1024 // Solo comprimir respuestas > 1KB
+}))
+
+// Logging de requests (en producción usar formato combinado)
+if (process.env.NODE_ENV === 'production') {
+  app.use(morgan('combined'))
+} else {
+  app.use(morgan('dev'))
+}
+
+// Rate limiting general
+app.use(generalLimiter)
+
 // Parsear body de peticiones
-app.use(express.json())
-app.use(express.urlencoded({ extended: true }))
+app.use(express.json({ limit: '10mb' }))
+app.use(express.urlencoded({ extended: true, limit: '10mb' }))
 
 // Archivos estaticos
-app.use(express.static(path.join(__dirname, 'src/public')))
+app.use(express.static(path.join(__dirname, 'src/public'), {
+  maxAge: process.env.NODE_ENV === 'production' ? '1d' : 0, // Cache en producción
+  etag: true
+}))
 
 // Sesiones
 app.use(sessionMiddleware)
@@ -138,6 +192,11 @@ app.use((req, res, next) => {
 // ========================================
 // Rutas
 // ========================================
+
+// Health check endpoint (sin rate limiting)
+app.use('/', healthCheckRoute)
+
+// Rutas principales
 app.use('/', routes)
 
 // ========================================

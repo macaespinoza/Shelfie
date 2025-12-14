@@ -3,6 +3,7 @@ const express = require('express')
 const router = express.Router()
 const shelfController = require('../controllers/shelfController')
 const { isAuthenticated } = require('../middlewares/authMiddleware')
+const { createContentLimiter } = require('../middlewares/securityMiddleware')
 
 // ========================================
 // RUTAS DE VISTAS (requieren autenticacion)

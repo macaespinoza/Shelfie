@@ -50,14 +50,26 @@ const authController = {
         })
       }
 
-      // Iniciar sesion automaticamente despues del registro
-      req.session.userId = result.user.id
-      req.flash('success', 'Cuenta creada exitosamente. Bienvenido a Shelfie!')
+      // Regenerar sesion para prevenir session fixation
+      req.session.regenerate((err) => {
+        if (err) {
+          console.error('Error al regenerar sesión:', err)
+          return res.render('pages/auth/register', {
+            title: 'Crear Cuenta - Shelfie',
+            errors: ['Error al crear la sesión. Intenta iniciar sesión.'],
+            formData: { username, email }
+          })
+        }
 
-      // Redirigir al dashboard o a la URL guardada
-      const returnTo = req.session.returnTo || '/dashboard'
-      delete req.session.returnTo
-      res.redirect(returnTo)
+        // Iniciar sesion automaticamente despues del registro
+        req.session.userId = result.user.id
+        req.flash('success', 'Cuenta creada exitosamente. Bienvenido a Shelfie!')
+
+        // Redirigir al dashboard o a la URL guardada
+        const returnTo = req.session.returnTo || '/dashboard'
+        delete req.session.returnTo
+        res.redirect(returnTo)
+      })
     } catch (error) {
       console.error('Error en registro:', error)
       res.render('pages/auth/register', {
@@ -103,19 +115,31 @@ const authController = {
       if (!isValidPassword) {
         return res.render('pages/auth/login', {
           title: 'Iniciar Sesion - Shelfie',
-          errors: ['Usuario o contrasena incorrectos'],
+          errors: ['Usuario o contraseña incorrectos'],
           formData: { identifier }
         })
       }
 
-      // Crear sesion
-      req.session.userId = user.id
-      req.flash('success', `Bienvenido de nuevo, ${user.username}!`)
+      // Regenerar sesion para prevenir session fixation
+      req.session.regenerate((err) => {
+        if (err) {
+          console.error('Error al regenerar sesión:', err)
+          return res.render('pages/auth/login', {
+            title: 'Iniciar Sesion - Shelfie',
+            errors: ['Error al crear la sesión. Intenta de nuevo.'],
+            formData: { identifier }
+          })
+        }
 
-      // Redirigir al dashboard o a la URL guardada
-      const returnTo = req.session.returnTo || '/dashboard'
-      delete req.session.returnTo
-      res.redirect(returnTo)
+        // Crear sesion
+        req.session.userId = user.id
+        req.flash('success', `Bienvenido de nuevo, ${user.username}!`)
+
+        // Redirigir al dashboard o a la URL guardada
+        const returnTo = req.session.returnTo || '/dashboard'
+        delete req.session.returnTo
+        res.redirect(returnTo)
+      })
     } catch (error) {
       console.error('Error en login:', error)
       res.render('pages/auth/login', {
