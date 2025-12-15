@@ -23,37 +23,37 @@ const VISIBILITY_OPTIONS = {
 const CATEGORY_INFO = {
   music: {
     name: 'Música',
-    icon: 'bi-music-note-beamed',
+    icon: 'musica',
     color: 'music',
     description: 'Álbumes, canciones y artistas favoritos'
   },
   movies: {
     name: 'Películas',
-    icon: 'bi-film',
+    icon: 'peliculas',
     color: 'movies',
     description: 'Películas que amas'
   },
   books: {
     name: 'Libros',
-    icon: 'bi-book',
+    icon: 'libros',
     color: 'books',
     description: 'Lecturas recomendadas'
   },
   games: {
     name: 'Videojuegos',
-    icon: 'bi-controller',
+    icon: 'videojuegos',
     color: 'games',
     description: 'Juegos favoritos'
   },
   series: {
     name: 'Series',
-    icon: 'bi-tv',
+    icon: 'series',
     color: 'series',
     description: 'Series de TV imperdibles'
   },
   podcasts: {
     name: 'Podcasts',
-    icon: 'bi-mic',
+    icon: 'podcasts',
     color: 'podcasts',
     description: 'Podcasts que escuchas'
   }
