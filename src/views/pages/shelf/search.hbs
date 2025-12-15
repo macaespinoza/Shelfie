@@ -218,7 +218,7 @@
             <label class="form-label">Calificacion (opcional)</label>
             <div class="rating-selector">
               {{#times 10}}
-                <button type="button" class="btn btn-outline-warning btn-sm rating-btn" data-rating="{{addOne @index}}">
+                <button type="button" class="rating-btn" data-rating="{{addOne @index}}">
                   {{addOne @index}}
                 </button>
               {{/times}}
@@ -282,8 +282,7 @@ document.addEventListener('DOMContentLoaded', function() {
       // Resetear rating
       document.getElementById('addRatingInput').value = ''
       document.querySelectorAll('.rating-selector .rating-btn').forEach(b => {
-        b.classList.remove('active', 'btn-warning')
-        b.classList.add('btn-outline-warning')
+        b.classList.remove('active')
       })
 
       // Resetear resena
@@ -303,11 +302,9 @@ document.addEventListener('DOMContentLoaded', function() {
       input.value = rating
 
       container.querySelectorAll('.rating-btn').forEach(b => {
-        b.classList.remove('active', 'btn-warning')
-        b.classList.add('btn-outline-warning')
+        b.classList.remove('active')
       })
-      this.classList.add('active', 'btn-warning')
-      this.classList.remove('btn-outline-warning')
+      this.classList.add('active')
     })
   })
 })

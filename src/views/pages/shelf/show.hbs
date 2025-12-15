@@ -171,6 +171,67 @@
     </div>
   </div>
   {{/if}}
+
+  {{!-- Sugerencias Populares (solo para dueño) --}}
+  {{#if isOwner}}
+  {{#if popularSuggestions.results.length}}
+  <div class="mt-5">
+    <div class="d-flex align-items-center mb-3">
+      <i class="bi bi-fire text-warning fs-4 me-2"></i>
+      <h4 class="mb-0">Sugerencias Populares</h4>
+      <small class="text-muted ms-2">(Agregar rápido)</small>
+    </div>
+    
+    <div class="popular-suggestions-scroll">
+      <div class="d-flex gap-3 pb-2">
+        {{#each popularSuggestions.results}}
+        <div class="popular-suggestion-card {{#if @root.isPortrait}}portrait{{/if}}">
+          <div class="suggestion-image">
+            {{#if imageUrl}}
+              <img src="{{imageUrl}}" alt="{{title}}" loading="lazy">
+            {{else}}
+              <div class="no-image-placeholder">
+                <i class="bi {{@root.shelf.categoryInfo.icon}} fs-3"></i>
+              </div>
+            {{/if}}
+            
+            {{!-- Botón de agregar overlay --}}
+            <form action="/shelf/{{@root.shelf.id}}/item" method="POST" class="add-suggestion-form">
+              <input type="hidden" name="externalId" value="{{externalId}}">
+              <input type="hidden" name="title" value="{{title}}">
+              <input type="hidden" name="imageUrl" value="{{imageUrl}}">
+              <input type="hidden" name="metadata" value='{{json metadata}}'>
+              <button type="submit" class="add-suggestion-btn" title="Agregar a tu repisa">
+                <i class="bi bi-plus-lg"></i>
+              </button>
+            </form>
+          </div>
+          
+          <div class="suggestion-info">
+            <p class="suggestion-title" title="{{title}}">{{title}}</p>
+            {{#if metadata.year}}
+              <small class="text-muted">{{metadata.year}}</small>
+            {{/if}}
+            {{#if metadata.artist}}
+              <small class="text-muted d-block text-truncate">{{metadata.artist}}</small>
+            {{/if}}
+            {{#if metadata.author}}
+              <small class="text-muted d-block text-truncate">{{metadata.author}}</small>
+            {{/if}}
+          </div>
+        </div>
+        {{/each}}
+      </div>
+    </div>
+    
+    <div class="text-center mt-3">
+      <a href="/shelf/{{shelf.id}}/search" class="btn btn-outline-primary btn-sm">
+        <i class="bi bi-search me-1"></i>Buscar más {{shelf.categoryInfo.name}}
+      </a>
+    </div>
+  </div>
+  {{/if}}
+  {{/if}}
 </div>
 
 {{#if isOwner}}
@@ -191,8 +252,8 @@
             <label class="form-label">Calificacion</label>
             <div class="rating-selector" id="editRatingSelector">
               {{#times 10}}
-                <button type="button" class="btn btn-outline-secondary btn-sm rating-btn rating-btn-{{addOne index}}" data-rating="{{addOne index}}">
-                  {{addOne index}}
+                <button type="button" class="rating-btn" data-rating="{{addOne @index}}">
+                  {{addOne @index}}
                 </button>
               {{/times}}
             </div>
@@ -224,11 +285,7 @@
 <script>
 document.addEventListener('DOMContentLoaded', function() {
   const editModal = document.getElementById('editItemModal')
-  // Definitions of colors for JS dynamic changes if needed, but classes handle most
-  const ratingClasses = {
-    1: 'rating-bg-1', 2: 'rating-bg-2', 3: 'rating-bg-3', 4: 'rating-bg-4', 5: 'rating-bg-5',
-    6: 'rating-bg-6', 7: 'rating-bg-7', 8: 'rating-bg-8', 9: 'rating-bg-9', 10: 'rating-bg-10'
-  };
+  // Definitions of colors removed as they are handled by CSS
 
   editModal.addEventListener('show.bs.modal', function(event) {
     const button = event.relatedTarget
@@ -260,20 +317,12 @@ document.addEventListener('DOMContentLoaded', function() {
      document.querySelectorAll('#editRatingSelector .rating-btn').forEach(btn => {
       const rating = btn.dataset.rating;
       
-      // Default state: Outline with specific color
-      // Remove all potential classes first
-      btn.className = `btn btn-sm rating-btn rating-outline-${rating}`;
-      btn.style.borderColor = '';
-      btn.style.transform = '';
+      // Reset
+      btn.classList.remove('active');
       
       // If selected
       if (rating == selectedRating) {
-         // Apply solid background and remove outline
-         btn.classList.remove(`rating-outline-${rating}`);
-         btn.classList.add(ratingClasses[rating]);
-         
-         btn.style.borderColor = 'transparent';
-         btn.style.transform = 'scale(1.1)';
+         btn.classList.add('active');
       }
     })
   }

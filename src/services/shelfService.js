@@ -269,8 +269,11 @@ const shelfService = {
       return { success: false, errors: ['Item no encontrado'] }
     }
 
+    // Guardar shelfId antes de eliminar el item
+    const shelfId = item.shelfId
+
     await item.destroy()
-    return { success: true }
+    return { success: true, shelfId }
   },
 
   // Obtener items de una repisa

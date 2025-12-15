@@ -48,7 +48,7 @@
   --color-musica: #00cec9;       /* Cyan/Teal for Music */
   --color-peliculas: #ff7675;    /* Red/Pink for Movies */
   --color-libros: #fdcb6e;       /* Amber/Yellow for Books */
-  --color-videojuegos: #00b894;  /* Green for Games */
+  --color-videojuegos: #7ce04d;  /* Green for Games */
   --color-series: #6c5ce7;       /* Purple for Series */
   --color-podcasts: #e17055;     /* Orange for Podcasts */
 
@@ -455,6 +455,61 @@ a:hover {
 .avatar-placeholder-xs { width: 24px; height: 24px; font-size: 0.75rem; border-radius: 50%; background: linear-gradient(135deg, var(--primary-color), #8b5cf6); display: flex; align-items: center; justify-content: center; font-weight: 600; text-transform: uppercase; color: white; }
 
 /* ----------------------------------------
+   SVG Category Icons
+   ---------------------------------------- */
+/* Base SVG icon styles - uses currentColor for fill */
+.category-icon {
+  width: 1.5rem;
+  height: 1.5rem;
+  display: inline-block;
+  vertical-align: middle;
+  fill: currentColor;
+  flex-shrink: 0;
+}
+
+/* Icon size variants */
+.category-icon.icon-xs { width: 1rem; height: 1rem; }
+.category-icon.icon-sm { width: 1.25rem; height: 1.25rem; }
+.category-icon.icon-md { width: 2rem; height: 2rem; }
+.category-icon.icon-lg { width: 3rem; height: 3rem; }
+.category-icon.icon-xl { width: 4rem; height: 4rem; }
+
+/* Font-size based sizing (like Bootstrap Icons) */
+.category-icon.fs-1 { width: 2.5rem; height: 2.5rem; }
+.category-icon.fs-2 { width: 2rem; height: 2rem; }
+.category-icon.fs-3 { width: 1.75rem; height: 1.75rem; }
+.category-icon.fs-4 { width: 1.5rem; height: 1.5rem; }
+.category-icon.fs-5 { width: 1.25rem; height: 1.25rem; }
+.category-icon.fs-6 { width: 1rem; height: 1rem; }
+
+/* Category-specific colors using currentColor inheritance */
+.category-icon.icon-musica { color: var(--color-musica); }
+.category-icon.icon-peliculas { color: var(--color-peliculas); }
+.category-icon.icon-libros { color: var(--color-libros); }
+.category-icon.icon-videojuegos { color: var(--color-videojuegos); }
+.category-icon.icon-series { color: var(--color-series); }
+.category-icon.icon-podcasts { color: var(--color-podcasts); }
+
+/* Navbar Logo SVG */
+.navbar-logo-svg {
+  width: 2rem;
+  height: 2rem;
+  fill: url(#logo-gradient);
+  filter: drop-shadow(0 0 8px rgba(103, 250, 193, 0.4));
+  transition: all 0.3s ease;
+}
+
+.navbar-brand:hover .navbar-logo-svg {
+  filter: drop-shadow(0 0 12px rgba(204, 132, 235, 0.6));
+  transform: scale(1.05);
+}
+
+/* Static logo gradient fallback - uses CSS gradient text colors */
+.navbar-logo-svg.gradient-fill {
+  fill: var(--tropical-mint);
+}
+
+/* ----------------------------------------
    5. Feature Specific
    ---------------------------------------- */
 /* Landing */
@@ -470,6 +525,147 @@ a:hover {
   0%, 100% { transform: translateY(0); }
   50% { transform: translateY(-10px); }
 }
+
+/* Features Section */
+.features-section {
+  position: relative;
+  background: linear-gradient(135deg, 
+    rgba(72, 3, 85, 0.3) 0%, 
+    rgba(108, 92, 231, 0.15) 50%, 
+    rgba(72, 3, 85, 0.3) 100%);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+
+.features-section::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: radial-gradient(circle at 20% 50%, rgba(204, 132, 235, 0.1) 0%, transparent 50%),
+              radial-gradient(circle at 80% 50%, rgba(103, 250, 193, 0.1) 0%, transparent 50%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+.features-section .container {
+  position: relative;
+  z-index: 1;
+}
+
+.feature-card {
+  background: var(--card-bg);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--border-radius-md);
+  padding: 2.5rem 2rem;
+  text-align: center;
+  transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+  position: relative;
+  overflow: hidden;
+  height: 100%;
+}
+
+.feature-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, 
+    var(--tropical-mint), 
+    var(--bright-lavender), 
+    var(--tropical-mint));
+  opacity: 0.7;
+  transition: opacity 0.3s ease;
+}
+
+.feature-card:hover {
+  transform: translateY(-10px);
+  border-color: var(--primary-color);
+  box-shadow: 0 15px 50px rgba(204, 132, 235, 0.4),
+              0 0 25px rgba(103, 250, 193, 0.2);
+}
+
+.feature-card:hover::before {
+  opacity: 1;
+}
+
+.feature-icon {
+  width: 80px;
+  height: 80px;
+  margin: 0 auto;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, var(--bright-lavender), #9d4edd);
+  box-shadow: 0 8px 25px rgba(204, 132, 235, 0.4);
+  transition: all 0.4s ease;
+  position: relative;
+}
+
+.feature-icon::before {
+  content: '';
+  position: absolute;
+  inset: -3px;
+  border-radius: 50%;
+  background: linear-gradient(45deg, var(--tropical-mint), var(--bright-lavender));
+  opacity: 0;
+  transition: opacity 0.4s ease;
+  z-index: -1;
+}
+
+.feature-card:hover .feature-icon {
+  transform: scale(1.1) rotate(5deg);
+  box-shadow: 0 12px 35px rgba(204, 132, 235, 0.6);
+}
+
+.feature-card:hover .feature-icon::before {
+  opacity: 0.6;
+}
+
+.feature-icon i {
+  color: white;
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+}
+
+.feature-card:nth-child(2) .feature-icon {
+  background: linear-gradient(135deg, #f1c40f, #f39c12);
+  box-shadow: 0 8px 25px rgba(241, 196, 15, 0.4);
+}
+
+.feature-card:nth-child(2):hover .feature-icon {
+  box-shadow: 0 12px 35px rgba(241, 196, 15, 0.6);
+}
+
+.feature-card:nth-child(3) .feature-icon {
+  background: linear-gradient(135deg, var(--tropical-mint), #4cc9f0);
+  box-shadow: 0 8px 25px rgba(103, 250, 193, 0.4);
+}
+
+.feature-card:nth-child(3):hover .feature-icon {
+  box-shadow: 0 12px 35px rgba(103, 250, 193, 0.6);
+}
+
+.feature-card h5 {
+  color: white;
+  margin-bottom: 1rem;
+  font-size: 1.25rem;
+  letter-spacing: -0.5px;
+}
+
+.feature-card p {
+  color: var(--text-muted);
+  line-height: 1.6;
+  margin: 0;
+}
+
 
 /* Friends System */
 .friend-card {
@@ -644,11 +840,51 @@ a:hover {
 .rating-outline-10 { border-color: #2e7d32; color: #2e7d32; }
 .rating-outline-10:hover { background-color: #2e7d32; color: white; }
 
-.rating-selector { display: flex; gap: 4px; flex-wrap: wrap; }
-.rating-selector .rating-btn {
-  width: 36px; height: 36px; padding: 0;
-  display: flex; align-items: center; justify-content: center; font-weight: 600;
+/* Rating Gradient Scale */
+.rating-selector { 
+  display: flex; 
+  gap: 0; /* Continuous look */
+  width: 100%;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.2);
 }
+
+.rating-selector .rating-btn {
+  flex: 1;
+  border-radius: 0; /* Continuous look */
+  border: none;
+  font-weight: 700;
+  color: white;
+  text-shadow: 0 1px 2px rgba(0,0,0,0.4);
+  transition: all 0.2s ease;
+  height: 40px;
+  position: relative;
+  opacity: 0.8;
+}
+
+.rating-selector .rating-btn:hover,
+.rating-selector .rating-btn.active {
+  opacity: 1;
+  transform: scaleY(1.15);
+  z-index: 10;
+  box-shadow: 0 0 15px rgba(0,0,0,0.3);
+}
+
+/* Specific colors for 1-10 scale (Red to Green) */
+.rating-selector .rating-btn:nth-child(1) { background-color: #ff3b30; }
+.rating-selector .rating-btn:nth-child(2) { background-color: #ff5e3a; }
+.rating-selector .rating-btn:nth-child(3) { background-color: #ff8c42; }
+.rating-selector .rating-btn:nth-child(4) { background-color: #ffae42; }
+.rating-selector .rating-btn:nth-child(5) { background-color: #ffcc00; }
+.rating-selector .rating-btn:nth-child(6) { background-color: #d4e157; }
+.rating-selector .rating-btn:nth-child(7) { background-color: #9ccc65; }
+.rating-selector .rating-btn:nth-child(8) { background-color: #66bb6a; }
+.rating-selector .rating-btn:nth-child(9) { background-color: #43a047; }
+.rating-selector .rating-btn:nth-child(10) { background-color: #2e7d32; }
+
+/* Optional: Add arrow/indicator on active/hover if desired, 
+   but for now just scale effect as it's cleaner */
 
 /* ----------------------------------------
    6. Responsive Design (Mobile First)
@@ -1106,5 +1342,162 @@ a:hover {
   .card {
     border: 1px solid #000 !important;
     page-break-inside: avoid;
+  }
+}
+
+/* ----------------------------------------
+   Popular Suggestions Section
+   ---------------------------------------- */
+.popular-suggestions-scroll {
+  overflow-x: auto;
+  overflow-y: hidden;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: thin;
+  scrollbar-color: var(--primary-color) transparent;
+  padding: 0.5rem 0;
+}
+
+.popular-suggestions-scroll::-webkit-scrollbar {
+  height: 6px;
+}
+
+.popular-suggestions-scroll::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 3px;
+}
+
+.popular-suggestions-scroll::-webkit-scrollbar-thumb {
+  background: var(--primary-color);
+  border-radius: 3px;
+}
+
+.popular-suggestion-card {
+  flex: 0 0 auto;
+  width: 140px;
+  background: var(--card-bg);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--border-radius-sm);
+  overflow: hidden;
+  transition: all 0.3s ease;
+}
+
+.popular-suggestion-card:hover {
+  transform: translateY(-5px);
+  border-color: var(--primary-color);
+  box-shadow: 0 10px 30px rgba(204, 132, 235, 0.3);
+}
+
+.popular-suggestion-card.portrait {
+  width: 120px;
+}
+
+.suggestion-image {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 1/1;
+  overflow: hidden;
+  background: rgba(0, 0, 0, 0.2);
+}
+
+.popular-suggestion-card.portrait .suggestion-image {
+  aspect-ratio: 2/3;
+}
+
+.suggestion-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.4s ease;
+}
+
+.popular-suggestion-card:hover .suggestion-image img {
+  transform: scale(1.1);
+}
+
+.suggestion-image .no-image-placeholder {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--text-muted);
+}
+
+/* Add button overlay */
+.add-suggestion-form {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.6);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.popular-suggestion-card:hover .add-suggestion-form {
+  opacity: 1;
+}
+
+.add-suggestion-btn {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  border: none;
+  background: var(--gradient-primary);
+  color: white;
+  font-size: 1.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(204, 132, 235, 0.5);
+}
+
+.add-suggestion-btn:hover {
+  transform: scale(1.15);
+  box-shadow: 0 6px 25px rgba(204, 132, 235, 0.7);
+}
+
+.add-suggestion-btn:active {
+  transform: scale(0.95);
+}
+
+.suggestion-info {
+  padding: 0.75rem;
+}
+
+.suggestion-title {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: white;
+  margin: 0 0 0.25rem 0;
+  line-height: 1.3;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .popular-suggestion-card {
+    width: 120px;
+  }
+  
+  .popular-suggestion-card.portrait {
+    width: 100px;
+  }
+  
+  .add-suggestion-btn {
+    width: 40px;
+    height: 40px;
+    font-size: 1.2rem;
   }
 }

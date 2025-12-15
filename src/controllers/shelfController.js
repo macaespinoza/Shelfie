@@ -41,6 +41,20 @@ const shelfController = {
       const portraitCategories = ['movies', 'series', 'books', 'games']
       const isPortrait = portraitCategories.includes(shelf.category)
 
+      // Cargar sugerencias populares SOLO si es dueño (para agregar items rápidamente)
+      // Esto utiliza el caché existente (TTL: 60 min para contenido popular)
+      let popularSuggestions = { results: [] }
+      if (isOwner) {
+        try {
+          const popular = await shelfService.getPopularContent(shelf.category)
+          // Limitar a 8 sugerencias para mantener UI limpia
+          popularSuggestions.results = (popular.results || []).slice(0, 8)
+        } catch (error) {
+          console.error('Error al cargar sugerencias populares:', error)
+          // No bloquear la carga de la página si falla
+        }
+      }
+
       res.render('pages/shelf/show', {
         title: `${shelf.name} - Shelfie`,
         shelf: {
@@ -48,7 +62,8 @@ const shelfController = {
           categoryInfo
         },
         isOwner,
-        isPortrait
+        isPortrait,
+        popularSuggestions
       })
     } catch (error) {
       console.error('Error al mostrar repisa:', error)
@@ -284,11 +299,13 @@ const shelfController = {
 
       if (!result.success) {
         req.flash('error', result.errors[0])
-      } else {
-        req.flash('success', 'Item actualizado')
+        return res.redirect('back')
       }
 
-      res.redirect('back')
+      req.flash('success', 'Item actualizado')
+      // Redirigir a la repisa específica en lugar de 'back'
+      const shelfId = result.item.shelf.id
+      res.redirect(`/shelf/${shelfId}`)
     } catch (error) {
       console.error('Error al actualizar item:', error)
 
@@ -318,11 +335,12 @@ const shelfController = {
 
       if (!result.success) {
         req.flash('error', result.errors[0])
-      } else {
-        req.flash('success', 'Item eliminado de la repisa')
+        return res.redirect('back')
       }
 
-      res.redirect('back')
+      req.flash('success', 'Item eliminado de la repisa')
+      // Redirigir a la repisa específica en lugar de 'back'
+      res.redirect(`/shelf/${result.shelfId}`)
     } catch (error) {
       console.error('Error al eliminar item:', error)
 
